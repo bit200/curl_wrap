@@ -50,15 +50,8 @@
 
 <script>
     // Extract hooks from official React global object
-    const { useState } = React;
-    // Create an alias shorthand for React.createElement to keep code readable
-    const e = React.createElement;
-
-
-
-    // Mount safely to the DOM root node
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(e(StatusLogger));
+    root.render(React.createElement(StatusLogger));
 </script>
 </body>
 </html>
