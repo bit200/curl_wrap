@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/bit200/curl_wrap#readme",
   "devDependencies": {
-    "electron": "^42.1.0"
+    "electron": "^42.1.0",
+    "electron-reload": "^2.0.0-alpha.1"
   }
 }
