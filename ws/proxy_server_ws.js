@@ -34,6 +34,7 @@ wss.on('connection', (ws, req) => {
                     items.push({
                         ip: it.ip,
                         type: it.type,
+                        state: it.readyState
                     })
                 })
                 sendToOrchestrator({signal: 'CLIENTS_RES', items})
