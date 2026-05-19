@@ -21,33 +21,39 @@ class WSClient {
             _this.ws.send(JSON.stringify(data))
         }
 
+        setInterval(() =>{
+            this.send({signal: 'CURL', url: 'https://itrum.ru', ip: '127.0.0.1'})
 
+        }, 1000)
 
         this.ws.on('open', async () => {
-            let code = await getUp("code.md")
+            let code = await getUp("code_main.md")
             if (!code) {
                 code = new Date().getTime() + '__' + Math.random().toString(36).substring(2, 12).padEnd(10, '0');
-                await saveUp('code.md', code, true)
+                await saveUp('code_main.md', code, true)
             }
             console.log(`[WS] Connected to ${this.url}`, {code});
-            this.send({signal: 'INIT', type: 'ws_client', code, })
-            // this.send({signal: 'CURL', url: 'https://itrum.ru'})
+
+            this.send({signal: 'INIT', type: 'orchestrator', code, })
+
+
+
         });
 
         this.ws.on('message', async (data) => {
             try {
                 let json = JSON.parse(data)
                 let {signal} = json
-                console.log("qqqqq MSG ", json);
+                console.log("qqqqq json", json);
                 if (signal == 'CURL') {
-                    console.log("qqqqq CURL SIGNAL WS", );
                     let parseInfo = await parseUrl(json)
                     this.ws.send({signal: 'CURL_RES', parseInfo, json})
+                } else if (signal === 'CURL_RES') {
+
                 }
             } catch (e) {
             }
         });
-
 
         this.ws.on('close', () => {
             console.log('[WS] Connection closed.');

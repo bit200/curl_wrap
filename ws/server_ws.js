@@ -8,7 +8,8 @@ const wss = new WebSocket.Server({port: env.wsMainPort}, () => {
 });
 
 wss.on('connection', (ws, req) => {
-    const clientIp = req.socket.remoteAddress;
+    let clientIp = req.socket.remoteAddress;
+    clientIp = clientIp.replace('::ffff:', '')
     // console.log(`[Server] New client connected from: ${clientIp}`);
 
     // ws.send(JSON.stringify({ message: 'Welcome! Connected to the test server.' }));
@@ -18,23 +19,26 @@ wss.on('connection', (ws, req) => {
             // Parse the message assuming it is JSON stringified
             const json = JSON.parse(message);
             let {signal, ip = 'local', type, code} = json
-            console.log('[Server] Received data object:', json, signal, clientIp);
+            // console.log('[Server] Received data object:', signal, clientIp);
 
-            if (signal == 'inited') {
+            if (signal == 'INIT') {
                 console.log("qqqqq INITED CONNECTION", {code});
-                ws.type = type;
+                ws.type = type || 'ws_client';
                 ws.code = code;
                 ws.ip = clientIp;
 
-            } else if (signal === 'curl') {
+            } else if (signal === 'CURL') {
                 if (/local/gi.test(ip)) {
                     let parseInfo = await parseUrl(json)
-                    sendTo('main_server', {parseInfo, json})
+                    console.log("qqqqq parseinfo. cd: ", parseInfo.cd);
+                    sendTo('orchestrator', {parseInfo, json, signal: 'CURL_RES'})
                 } else {
-                    sendTo('curl_client', json)
+                    // console.log("qqqqq send to ip", ip);
+                    sendToIp(ip)
                 }
-            } else if (signal === 'main_proxy') {
-                sendTo('main_server', json)
+            } else if (signal === 'CURL_RES') {
+                console.log("qqqqq -...................... CURL RES", json);
+                sendTo('orchestrator', json)
             }
 
 
@@ -59,6 +63,17 @@ wss.on('connection', (ws, req) => {
         console.error(`[Server] Socket error: ${error.message}`);
     });
 });
+
+function sendToIp(ip, msg) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN && client.type == 'ws_client' && client.ip == ip) {
+            client.send(JSON.stringify(msg))
+            console.log(`SEND TO IP ------->>>>>>>>>>>>>>>>>>>>>>: ${client.code} at IP: ${client.ip}`, client.type, ip);
+        }
+    });
+
+}
+
 
 function sendTo(type, msg) {
     wss.clients.forEach((client) => {
