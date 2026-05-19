@@ -66,6 +66,7 @@ wss.on('connection', (ws, req) => {
 
 function sendToIp(ip, msg) {
     wss.clients.forEach((client) => {
+        console.log("qqqqq client", client.type, client.ip );
         if (client.readyState === WebSocket.OPEN && client.type == 'ws_client' && client.ip == ip) {
             client.send(JSON.stringify(msg))
             console.log(`SEND TO IP ------->>>>>>>>>>>>>>>>>>>>>>: ${client.code} at IP: ${client.ip}`, client.type, ip);
