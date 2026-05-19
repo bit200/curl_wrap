@@ -39,6 +39,10 @@ wss.on('connection', (ws, req) => {
             if (signal == 'INIT') {
                 wss.clients.forEach(it => {
                     if (it.code == code) {
+                        console.log("qqqqq  disconnect pervious connet", );
+                        console.log("qqqqq  disconnect pervious connet", );
+                        console.log("qqqqq  disconnect pervious connet", );
+                        console.log("qqqqq  disconnect pervious connet", );
                         it.close(1000, 'disconnect by time')
                     }
                 })
