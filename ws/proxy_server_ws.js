@@ -28,6 +28,13 @@ wss.on('connection', (ws, req) => {
                 ws.ip = json.force_ip || clientIp;
                 console.log("qqqqq INITED CONNECTION", {code, ip: ws.ip});
 
+            } else if (signal === 'CLIENTS') {
+                sendToOrchestrator(wss.clients.map(it => {
+                    return {
+                        ip: it.ip,
+                        type: it.type,
+                    }
+                }))
             } else if (signal === 'CURL') {
                 if (/server_direct/gi.test(ip)) {
                     let parseInfo = await parseUrl(json)
@@ -39,7 +46,7 @@ wss.on('connection', (ws, req) => {
                 }
             } else if (signal === 'CURL_RES') {
                 // console.log("qqqqq -...................... CURL RES", json);
-                sendTo('orchestrator', json)
+                sendToOrchestrator( json)
             }
 
 
@@ -86,5 +93,10 @@ function sendTo(type, msg) {
         }
     });
 
+}
+
+
+function sendToOrchestrator(msg) {
+    return sendTo('orchestrator', msg)
 }
 

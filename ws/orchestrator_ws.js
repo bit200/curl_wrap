@@ -25,6 +25,7 @@ class WSClient {
 
         setInterval(() =>{
             this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'force_local', min_interval_ms: 100})
+            this.send({signal: 'CLIENTS'})
 
         }, 5000)
 
@@ -53,6 +54,8 @@ class WSClient {
                     // console.log("qqqqq json1",json );
                     console.log("qqqqq json2", json?.parseInfo?.html?.length);
 
+                } else if (signal === 'CLIENTS_RES') {
+                    console.log("qqqqq LIST OF CLIENTS", json);
                 }
             } catch (e) {
             }
