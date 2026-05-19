@@ -1,0 +1,25 @@
+{
+  "name": "curl_wrap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ws_client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bit200/curl_wrap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bit200/curl_wrap/issues"
+  },
+  "homepage": "https://github.com/bit200/curl_wrap#readme",
+  "devDependencies": {
+    "electron": "^42.1.0"
+  }
+}

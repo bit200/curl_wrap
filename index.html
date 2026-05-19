@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Логгер статусов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+            transition: background-color 0.2s;
+        }
+        #start {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #start:hover { background-color: #45a049; }
+        #stop {
+            background-color: #f44336;
+            color: white;
+        }
+        #stop:hover { background-color: #da190b; }
+        #status-text {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<button id="start" onclick="logStatus('СТАРТ')">СТАРТ</button>
+<button id="stop" onclick="logStatus('СТОП')">СТОП</button>
+
+<div id="status-text">Ожидание действий...</div>
+
+<script>
+    function logStatus(status) {
+        // Отправляем сигнал в Electron
+        window.electronAPI.sendStatus(status);
+
+        // Обновляем текст в приложении
+        document.getElementById('status-text').innerText = `Последнее действие: ${status}`;
+    }
+</script>
+</body>
+</html>
