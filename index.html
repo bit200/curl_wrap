@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Логгер статусов</title>
+    <!-- Your Official React Scripts -->
+    <script crossorigin src="./libs/react-standalone.js"></script>
+    <script crossorigin src="./front.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -23,17 +27,16 @@
             cursor: pointer;
             width: 200px;
             transition: background-color 0.2s;
+            color: white;
         }
-        #start {
+        .btn-start {
             background-color: #4CAF50;
-            color: white;
         }
-        #start:hover { background-color: #45a049; }
-        #stop {
+        .btn-start:hover { background-color: #45a049; }
+        .btn-stop {
             background-color: #f44336;
-            color: white;
         }
-        #stop:hover { background-color: #da190b; }
+        .btn-stop:hover { background-color: #da190b; }
         #status-text {
             margin-top: 20px;
             font-weight: bold;
@@ -42,19 +45,20 @@
     </style>
 </head>
 <body>
-<button id="start" onclick="logStatus('СТАРТ')">СТАРТ</button>
-<button id="stop" onclick="logStatus('СТОП')">СТОП</button>
 
-<div id="status-text">Ожидание действий...</div>
+<div id="root"></div>
 
 <script>
-    function logStatus(status) {
-        // Отправляем сигнал в Electron
-        window.electronAPI.sendStatus(status);
+    // Extract hooks from official React global object
+    const { useState } = React;
+    // Create an alias shorthand for React.createElement to keep code readable
+    const e = React.createElement;
 
-        // Обновляем текст в приложении
-        document.getElementById('status-text').innerText = `Последнее действие: ${status}`;
-    }
+
+
+    // Mount safely to the DOM root node
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(e(StatusLogger));
 </script>
 </body>
 </html>
