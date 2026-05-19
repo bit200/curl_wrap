@@ -22,7 +22,7 @@ class WSClient {
         }
 
         setInterval(() =>{
-            this.send({signal: 'CURL', url: 'https://itrum.ru', ip: '127.0.0.1'})
+            this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'local'})
 
         }, 1000)
 
