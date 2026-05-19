@@ -23,8 +23,6 @@ class WSClient {
             _this.ws.send(JSON.stringify(data))
         }
 
-
-
         this.ws.on('open', async () => {
             let code = await getUp("code.md")
             if (!code) {
@@ -46,7 +44,6 @@ class WSClient {
                     let cd = new Date().getTime();
                     console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", json.url );
                     // if (json.min_interval_ms && )  {
-                    //
                     // }
                     last_curl_cd = cd;
 
@@ -80,13 +77,6 @@ class WSClient {
         }
         console.warn('[WS] Cannot send message, socket not open.');
         return false;
-    }
-
-    disconnect() {
-        this.isCustomClosed = true;
-        if (this.ws) {
-            this.ws.close();
-        }
     }
 }
 
