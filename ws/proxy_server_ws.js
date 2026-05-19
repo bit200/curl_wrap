@@ -14,6 +14,19 @@ wss.on('connection', (ws, req) => {
 
     // ws.send(JSON.stringify({ message: 'Welcome! Connected to the test server.' }));
 
+    function getSendClients () {
+        let items = [];
+        wss.clients.forEach(it => {
+            items.push({
+                ip: it.ip,
+                type: it.type,
+                state: it.readyState
+            })
+        })
+        sendToOrchestrator({signal: 'CLIENTS_RES', items})
+    }
+
+
     ws.on('message', async (message) => {
         try {
             // Parse the message assuming it is JSON stringified
@@ -27,17 +40,12 @@ wss.on('connection', (ws, req) => {
                 ws.code = code;
                 ws.ip = json.force_ip || clientIp;
                 console.log("qqqqq INITED CONNECTION", {code, ip: ws.ip});
+                if (type === 'orchestrator') {
+                    getSendClients()
+                }
 
             } else if (signal === 'CLIENTS') {
-                let items = [];
-                wss.clients.forEach(it => {
-                    items.push({
-                        ip: it.ip,
-                        type: it.type,
-                        state: it.readyState
-                    })
-                })
-                sendToOrchestrator({signal: 'CLIENTS_RES', items})
+               getSendClients()
             } else if (signal === 'CURL') {
                 if (/server_direct/gi.test(ip)) {
                     let parseInfo = await parseUrl(json)
