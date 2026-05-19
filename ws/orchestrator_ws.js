@@ -5,6 +5,8 @@ const {saveUp, getUp} = require("./saveUp");
 const {clearHtml} = require("./clearHtml");
 const {parseUrl} = require("./parseUrl");
 
+
+global.onSendWs = null
 class WSClient {
     constructor(url) {
         this.url = url;
@@ -20,6 +22,8 @@ class WSClient {
         function onSend (data) {
             _this.ws.send(JSON.stringify(data))
         }
+
+        global.onSendWs = onSend;
 
         this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'force_local'})
 
@@ -47,11 +51,7 @@ class WSClient {
             try {
                 let json = JSON.parse(data)
                 let {signal} = json
-                if (signal == 'CURL') {
-                    let parseInfo = await parseUrl(json)
-                    this.ws.send({signal: 'CURL_RES', parseInfo, json})
-                } else if (signal === 'CURL_RES') {
-                    // console.log("qqqqq json1",json );
+                if (signal === 'CURL_RES') {
                     console.log("qqqqq json2", json?.parseInfo?.html?.length);
 
                 } else if (signal === 'CLIENTS_RES') {
