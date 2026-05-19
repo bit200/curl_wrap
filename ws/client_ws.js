@@ -31,7 +31,7 @@ class WSClient {
                 await saveUp('code.md', code, true)
             }
             console.log(`[WS] Connected to ${this.url}`, {code});
-            this.send({signal: 'INIT', type: 'ws_client', code, force_ip: 'local'})
+            this.send({signal: 'INIT', type: 'ws_client', code, force_ip: 'force_local'})
             // this.send({signal: 'CURL', url: 'https://itrum.ru'})
         });
 
@@ -42,7 +42,7 @@ class WSClient {
                 let json = JSON.parse(data.toString())
                 let {signal} = json
                 if (signal == 'CURL') {
-                    console.log("qqqqq CURL SIGNAL WS", );
+                    console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", );
                     let parseInfo = await parseUrl(json)
                     onSend({signal: 'CURL_RES', parseInfo, json})
                 }

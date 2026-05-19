@@ -23,14 +23,13 @@ wss.on('connection', (ws, req) => {
             // console.log('[Server] Received data object:', signal, clientIp);
 
             if (signal == 'INIT') {
-                console.log("qqqqq INITED CONNECTION", {code});
                 ws.type = type || 'ws_client';
                 ws.code = code;
-                ws.ip = clientIp;
                 ws.ip = json.force_ip || clientIp;
+                console.log("qqqqq INITED CONNECTION", {code, ip: ws.ip});
 
             } else if (signal === 'CURL') {
-                if (/local/gi.test(ip)) {
+                if (/server_direct/gi.test(ip)) {
                     let parseInfo = await parseUrl(json)
                     console.log("qqqqq parseinfo. cd: ", parseInfo.cd);
                     sendTo('orchestrator', {parseInfo, json, signal: 'CURL_RES'})
