@@ -35,7 +35,7 @@ wss.on('connection', (ws, req) => {
                     console.log("qqqqq parseinfo. cd: ", parseInfo.cd);
                     sendTo('orchestrator', {parseInfo, json, signal: 'CURL_RES'})
                 } else {
-                    console.log("qqqqq send to ip", ip);
+                    // console.log("qqqqq send to ip", ip);
                     sendToIp(ip, json)
                 }
             } else if (signal === 'CURL_RES') {
@@ -68,7 +68,7 @@ wss.on('connection', (ws, req) => {
 
 function sendToIp(ip, msg) {
     wss.clients.forEach((client) => {
-        console.log("qqqqq client", client.type, client.ip);
+        // console.log("qqqqq client", client.type, client.ip);
         if (client.readyState === WebSocket.OPEN && client.type == 'ws_client' && client.ip == ip) {
             client.send(JSON.stringify(msg))
             console.log(`SEND TO IP ------->>>>>>>>>>>>>>>>>>>>>>: ${client.code} at IP: ${client.ip}`, client.type, ip);
