@@ -31,7 +31,7 @@ class WSClient {
                 await saveUp('code.md', code, true)
             }
             console.log(`[WS] Connected to ${this.url}`, {code});
-            this.send({signal: 'INIT', type: 'ws_client', code, })
+            this.send({signal: 'INIT', type: 'ws_client', code, force_ip: 'local'})
             // this.send({signal: 'CURL', url: 'https://itrum.ru'})
         });
 

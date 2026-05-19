@@ -19,6 +19,7 @@ wss.on('connection', (ws, req) => {
             // Parse the message assuming it is JSON stringified
             const json = JSON.parse(message);
             let {signal, ip = 'local', type, code} = json
+
             // console.log('[Server] Received data object:', signal, clientIp);
 
             if (signal == 'INIT') {
@@ -26,6 +27,7 @@ wss.on('connection', (ws, req) => {
                 ws.type = type || 'ws_client';
                 ws.code = code;
                 ws.ip = clientIp;
+                ws.ip = json.force_ip || clientIp;
 
             } else if (signal === 'CURL') {
                 if (/local/gi.test(ip)) {
@@ -66,7 +68,7 @@ wss.on('connection', (ws, req) => {
 
 function sendToIp(ip, msg) {
     wss.clients.forEach((client) => {
-        console.log("qqqqq client", client.type, client.ip );
+        console.log("qqqqq client", client.type, client.ip);
         if (client.readyState === WebSocket.OPEN && client.type == 'ws_client' && client.ip == ip) {
             client.send(JSON.stringify(msg))
             console.log(`SEND TO IP ------->>>>>>>>>>>>>>>>>>>>>>: ${client.code} at IP: ${client.ip}`, client.type, ip);
