@@ -3,6 +3,7 @@ const {wsServer} = require("../env");
 const {curl_direct} = require("./curl");
 const {saveUp, getUp} = require("./saveUp");
 const {clearHtml} = require("./clearHtml");
+const {parseUrl} = require("./parseUrl");
 
 class WSClient {
     constructor(url) {
@@ -15,26 +16,34 @@ class WSClient {
         this.isCustomClosed = false;
         this.ws = new WebSocket(this.url);
 
-        this.ws.on('open', () => {
-            console.log(`[WS] Connected to ${this.url}`);
+        this.ws.on('open', async () => {
+            let code = await getUp("code.md")
+            if (!code) {
+                code = new Date().getTime() + '__' + Math.random().toString(36).substring(2, 12).padEnd(10, '0');
+                await saveUp('code.md', code, true)
+            }
+
+            console.log(`[WS] Connected to ${this.url}`, {code});
+            this.send({signal: 'inited', code, type: 'curl_client'})
+
         });
 
         this.ws.on('message', async (data) => {
-            console.log(`[WS] Received: ${data}`, data.messages, data.toString());
-
-            // let html = await curl_direct("https://sudrf.ru")
-            let html = await getUp('curl.html')
-            // let html = await curl_direct("https://krasnodar-prikubansky--krd.sudrf.ru/modules.php?name=sud_delo&srv_num=1&name_op=case&case_id=457286424&case_uid=c5af6679-6d16-4a0f-a309-c70d00b157b4&delo_id=1540005")
-            await saveUp('curl2.html', clearHtml(html))
-            console.log("qqqqq html", html );
-
+            try {
+                let json = JSON.parse(data)
+                if (json.signal == 'curl') {
+                    let parseInfo = await parseUrl(json)
+                    this.ws.send({signal: 'main_proxy', parseInfo})
+                }
+            } catch (e) {
+            }
         });
 
         this.ws.on('close', () => {
             console.log('[WS] Connection closed.');
             if (!this.isCustomClosed) {
                 console.log('[WS] Reconnecting in 5 seconds...');
-                setTimeout(() => this.connect(), 5000);
+                setTimeout(() => this.connect(), 2000);
             }
         });
 
@@ -68,10 +77,6 @@ module.exports = WSClient;
 // This checks if the file is being run directly via 'node client_ws.js'
 if (require.main === module) {
     const wsClient = new WSClient(wsServer);
-    console.log("Starting standalone WebSocket client...");
-
-    // Call connect to open the socket and keep the process alive
+    console.log("Starting standalone WebSocket client...",);
     wsClient.connect();
-
-
 }

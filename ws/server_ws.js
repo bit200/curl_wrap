@@ -1,33 +1,51 @@
 const WebSocket = require('ws');
+const {parseUrl} = require("./parseUrl");
+const env = require('../env')
 
 // Start the server on port 8080
-const wss = new WebSocket.Server({ port: 8080 }, () => {
+const wss = new WebSocket.Server({port: env.wsMainPort}, () => {
     console.log('--- WebSocket Server started on ws://localhost:8080 ---');
 });
 
-// Listen for incoming client connections
 wss.on('connection', (ws, req) => {
     const clientIp = req.socket.remoteAddress;
-    console.log(`[Server] New client connected from: ${clientIp}`);
+    // console.log(`[Server] New client connected from: ${clientIp}`);
 
-    // Send a welcome message to the newly connected Electron app
-    ws.send(JSON.stringify({ message: 'Welcome! Connected to the test server.' }));
+    // ws.send(JSON.stringify({ message: 'Welcome! Connected to the test server.' }));
 
-    // Listen for messages from the Electron app
-    ws.on('message', (message) => {
+    ws.on('message', async (message) => {
         try {
             // Parse the message assuming it is JSON stringified
-            const parsedData = JSON.parse(message);
-            console.log('[Server] Received data object:', parsedData);
+            const json = JSON.parse(message);
+            let {signal, ip = 'local', type, code} = json
+            console.log('[Server] Received data object:', json, signal, clientIp);
+
+            if (signal == 'inited') {
+                console.log("qqqqq INITED CONNECTION", {code});
+                ws.type = type;
+                ws.code = code;
+                ws.ip = clientIp;
+
+            } else if (signal === 'curl') {
+                if (/local/gi.test(ip)) {
+                    let parseInfo = await parseUrl(json)
+                    sendTo('main_server', {parseInfo, json})
+                } else {
+                    sendTo('curl_client', json)
+                }
+            } else if (signal === 'main_proxy') {
+                sendTo('main_server', json)
+            }
+
 
             // Optional: Broadcast confirmation back to the sending client
-            ws.send(JSON.stringify({
-                status: 'success',
-                received: parsedData.status
-            }));
+            // ws.send(JSON.stringify({
+            //     status: 'success',
+            //     received: parsedData.status
+            // }));
         } catch (error) {
             // Handle plain text fallback if JSON parsing fails
-            console.log(`[Server] Received raw string: ${message}`);
+            console.log(`[Server] Received raw string: ${message}`, error);
         }
     });
 
@@ -41,3 +59,15 @@ wss.on('connection', (ws, req) => {
         console.error(`[Server] Socket error: ${error.message}`);
     });
 });
+
+function sendTo(type, msg) {
+    wss.clients.forEach((client) => {
+        // Check if the connection is still open/active
+        if (client.readyState === WebSocket.OPEN && client.type == type) {
+            client.send(JSON.stringify(msg))
+            console.log(`Sending update to client with code: ${client.code} at IP: ${client.ip}`, client.type, {type});
+        }
+    });
+
+}
+

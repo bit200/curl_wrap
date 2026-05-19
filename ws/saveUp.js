@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-async function saveUp (name, content) {
+async function saveUp (name, content, preventMeta) {
     const dir = path.join(__dirname, `../up/${name}`);
     const targetDir = path.dirname(dir);
 
     await fs.promises.mkdir(targetDir, { recursive: true });
-    await fs.promises.writeFile(dir, `<meta charset="utf-8">\n\n` + content, 'utf8');
+    await fs.promises.writeFile(dir, (preventMeta ? '' : `<meta charset="utf-8">\n\n`) + content, 'utf8');
 }
 
 async function getUp (name) {
