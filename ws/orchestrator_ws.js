@@ -24,7 +24,7 @@ class WSClient {
         this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'force_local'})
 
         setInterval(() =>{
-            this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'force_local'})
+            this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'force_local', min_interval_ms: 100})
 
         }, 2000)
 
@@ -50,7 +50,7 @@ class WSClient {
                     let parseInfo = await parseUrl(json)
                     this.ws.send({signal: 'CURL_RES', parseInfo, json})
                 } else if (signal === 'CURL_RES') {
-                    console.log("qqqqq json1",json );
+                    // console.log("qqqqq json1",json );
                     console.log("qqqqq json2", json?.parseInfo?.html?.length);
 
                 }

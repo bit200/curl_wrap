@@ -6,6 +6,7 @@ const {clearHtml} = require("./clearHtml");
 const {parseUrl} = require("./parseUrl");
 
 let ind =0;
+let last_curl_cd = 0
 class WSClient {
     constructor(url) {
         this.url = url;
@@ -42,7 +43,13 @@ class WSClient {
                 let json = JSON.parse(data.toString())
                 let {signal} = json
                 if (signal == 'CURL') {
+                    let cd = new Date().getTime();
                     console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", );
+                    // if (json.min_interval_ms && )  {
+                    //
+                    // }
+                    last_curl_cd = cd;
+
                     let parseInfo = await parseUrl(json)
                     onSend({signal: 'CURL_RES', parseInfo, json})
                 }
