@@ -50,7 +50,7 @@ class WSClient {
                 if (signal == 'CURL') {
                     let cd = new Date().getTime();
                     console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", json.url );
-                    let delta = (join.min_interval_ms || 0) - (cd - last_curl_cd)
+                    let delta = (json?.min_interval_ms || 0) - (cd - last_curl_cd)
                     if (delta > 0)  {
                         last_curl_cd = cd;
                         await delay(delta)

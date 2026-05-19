@@ -20,7 +20,8 @@ wss.on('connection', (ws, req) => {
             items.push({
                 ip: it.ip,
                 type: it.type,
-                state: it.readyState
+                state: it.readyState,
+                code: it.code
             })
         })
         sendToOrchestrator({signal: 'CLIENTS_RES', items})
@@ -36,6 +37,13 @@ wss.on('connection', (ws, req) => {
             // console.log('[Server] Received data object:', signal, clientIp);
 
             if (signal == 'INIT') {
+                wss.clients.forEach(it => {
+                    if (it.code == code) {
+                        it.close(1000, 'disconnect by time')
+                    }
+                })
+
+
                 ws.type = type || 'ws_client';
                 ws.code = code;
                 ws.ip = json.force_ip || clientIp;
@@ -43,6 +51,8 @@ wss.on('connection', (ws, req) => {
                 if (type === 'orchestrator') {
                     getSendClients()
                 }
+
+
 
             } else if (signal === 'CLIENTS') {
                getSendClients()
