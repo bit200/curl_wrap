@@ -5,6 +5,13 @@ const {saveUp, getUp} = require("./saveUp");
 const {clearHtml} = require("./clearHtml");
 const {parseUrl} = require("./parseUrl");
 
+async function delay (ms) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(), ms)
+    })
+}
+
+
 let ind =0;
 let last_curl_cd = 0
 class WSClient {
@@ -43,9 +50,11 @@ class WSClient {
                 if (signal == 'CURL') {
                     let cd = new Date().getTime();
                     console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", json.url );
-                    // if (json.min_interval_ms && )  {
-                    // }
-                    last_curl_cd = cd;
+                    let delta = (join.min_interval_ms || 0) - (cd - last_curl_cd)
+                    if (delta > 0)  {
+                        last_curl_cd = cd;
+                        await delay(delta)
+                    }
 
                     let parseInfo = await parseUrl(json)
                     onSend({signal: 'CURL_RES', parseInfo, json})

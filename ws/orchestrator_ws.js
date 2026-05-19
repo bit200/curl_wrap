@@ -6,7 +6,8 @@ const {clearHtml} = require("./clearHtml");
 const {parseUrl} = require("./parseUrl");
 
 
-global.onSendWs = null
+global.onSendWs = null;
+
 class WSClient {
     constructor(url) {
         this.url = url;
@@ -55,6 +56,7 @@ class WSClient {
                     console.log("qqqqq json2", json?.parseInfo?.html?.length);
 
                 } else if (signal === 'CLIENTS_RES') {
+
                     console.log("qqqqq LIST OF CLIENTS", json);
                 }
             } catch (e) {
