@@ -21,10 +21,10 @@ class WSClient {
             _this.ws.send(JSON.stringify(data))
         }
 
-        // setInterval(() =>{
-        //     this.send({signal: 'CURL', url: 'https://itrum.ru', ip: '127.0.0.1'})
-        //
-        // }, 1000)
+        setInterval(() =>{
+            this.send({signal: 'CURL', url: 'https://itrum.ru', ip: '127.0.0.1'})
+
+        }, 1000)
 
         this.ws.on('open', async () => {
             let code = await getUp("code_main.md")
