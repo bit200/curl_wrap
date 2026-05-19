@@ -34,7 +34,7 @@ wss.on('connection', (ws, req) => {
                     sendTo('orchestrator', {parseInfo, json, signal: 'CURL_RES'})
                 } else {
                     // console.log("qqqqq send to ip", ip);
-                    sendToIp(ip)
+                    sendToIp(ip, json)
                 }
             } else if (signal === 'CURL_RES') {
                 console.log("qqqqq -...................... CURL RES", json);

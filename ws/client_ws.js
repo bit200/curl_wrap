@@ -5,6 +5,7 @@ const {saveUp, getUp} = require("./saveUp");
 const {clearHtml} = require("./clearHtml");
 const {parseUrl} = require("./parseUrl");
 
+let ind =0;
 class WSClient {
     constructor(url) {
         this.url = url;
@@ -36,15 +37,17 @@ class WSClient {
 
         this.ws.on('message', async (data) => {
             try {
-                let json = JSON.parse(data)
+                console.log("qqqqq MSG ", ++ind);
+
+                let json = JSON.parse(data.toString())
                 let {signal} = json
-                console.log("qqqqq MSG ", json);
                 if (signal == 'CURL') {
                     console.log("qqqqq CURL SIGNAL WS", );
                     let parseInfo = await parseUrl(json)
-                    this.ws.send({signal: 'CURL_RES', parseInfo, json})
+                    onSend({signal: 'CURL_RES', parseInfo, json})
                 }
             } catch (e) {
+                console.log("qqqqq eeeeeeee", e);
             }
         });
 
