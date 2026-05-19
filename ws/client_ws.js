@@ -38,13 +38,13 @@ class WSClient {
 
         this.ws.on('message', async (data) => {
             try {
-                console.log("qqqqq MSG ", ++ind);
+                // console.log("qqqqq MSG ", ++ind);
 
                 let json = JSON.parse(data.toString())
                 let {signal} = json
                 if (signal == 'CURL') {
                     let cd = new Date().getTime();
-                    console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", );
+                    console.log("qqqqq CURL SIGNAL WS ----------->>>>>>>>>>>>>>", json.url );
                     // if (json.min_interval_ms && )  {
                     //
                     // }

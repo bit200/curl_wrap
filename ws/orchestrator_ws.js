@@ -26,7 +26,7 @@ class WSClient {
         setInterval(() =>{
             this.send({signal: 'CURL', url: 'https://itrum.ru', ip: 'force_local', min_interval_ms: 100})
 
-        }, 2000)
+        }, 5000)
 
         this.ws.on('open', async () => {
             let code = await getUp("code_main.md")
