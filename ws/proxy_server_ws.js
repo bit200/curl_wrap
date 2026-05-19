@@ -29,13 +29,14 @@ wss.on('connection', (ws, req) => {
                 console.log("qqqqq INITED CONNECTION", {code, ip: ws.ip});
 
             } else if (signal === 'CLIENTS') {
-                let arr = [];
+                let items = [];
                 wss.clients.forEach(it => {
-                    arr.push({
+                    items.push({
                         ip: it.ip,
                         type: it.type,
                     })
                 })
+                sendToOrchestrator({signal: 'CLIENTS_RES', items})
             } else if (signal === 'CURL') {
                 if (/server_direct/gi.test(ip)) {
                     let parseInfo = await parseUrl(json)
