@@ -64,7 +64,7 @@ async function onSmartCurl (data, res) {
 
             console.log("qqqqq clientResponse", clientResponse);
             let response = clientResponse ? clientResponse[0] : {}
-            let html = respones?.html;
+            let html = response?.html;
 
             res.status(200).json({
                 status: "ok",
