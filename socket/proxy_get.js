@@ -72,6 +72,7 @@ async function onSmartCurl (data, res) {
                 status: "ok",
                 url,
                 regexps: data.woReg ? {} : {
+                    result_slushania: html.match(/Результат слушания/gi)?.length,
                     otvet: html.match(/ответчик/gi)?.length,
                     503: html.match(/\<h2\>503\<\/h2\>/gi)?.length,
                     'информация недоступна': html.match(/Информация временно недоступна/gi)?.length,
