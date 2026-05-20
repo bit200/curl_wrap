@@ -109,6 +109,11 @@ async function onSmartCurl (data, res) {
 }
 
 
+app.get("/odb", async (req, res) => {
+    let data = req.query;
+    data.url = `${data.domain}/modules.php?name=sud_delo&srv_num=1&H_date=${data || '19.05.2026'}`
+    onSmartCurl(data, res).then()
+});
 app.get("/curl", async (req, res) => {
     onSmartCurl(req.query, res).then()
 });

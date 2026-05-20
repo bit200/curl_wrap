@@ -46,6 +46,7 @@ async function curl_direct_ws(url, options = {}) {
                 });
 
                 res.on('end', () => {
+                    console.log("qqqqq finish", );
                     const buffer = Buffer.concat(chunks);
 
                     // let htmlText = buffer.toString('utf8');
