@@ -59,6 +59,19 @@ async function onSmartCurl (data, res) {
             clientResponse = await io.timeout(15000)
                 .to(matchedSocket.id)
                 .emitWithAck("curl", data);
+
+
+            res.status(200).json({
+                status: "ok",
+                url,
+                socket: matchedSocket ? {
+                    ip: matchedSocket.ip,
+                    code: matchedSocket.code,
+                    id: matchedSocket.id,
+                } : {},
+                query: data,
+                res: clientResponse ? matchedSocket[0] : {}
+            });
         }
 
 
@@ -74,17 +87,6 @@ async function onSmartCurl (data, res) {
         }
 
 
-        res.status(200).json({
-            status: "ok",
-            url,
-            socket: matchedSocket ? {
-                ip: matchedSocket.ip,
-                code: matchedSocket.code,
-                id: matchedSocket.id,
-            } : {},
-            query: data,
-            res: clientResponse ? matchedSocket[0] : {}
-        });
 
     } catch (err) {
         console.log("qqqqq err", err);
