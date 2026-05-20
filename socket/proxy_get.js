@@ -1,8 +1,8 @@
 const express = require("express");
 const {createServer} = require("http");
 const {Server} = require("socket.io");
-const {wsMainPort, proxyGetPort} = require("../env");
-const {timer} = require("./timer");
+const {wsMainPort} = require("../env");
+const {timer} = require("./../libs/timer");
 
 const app = express();
 const httpServer = createServer(app);

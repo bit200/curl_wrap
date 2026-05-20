@@ -1,7 +1,7 @@
 const { io } = require("socket.io-client");
 const {wsMainPort, wsDomain} = require("../env");
-const {getUp, saveUp} = require("../ws/saveUp");
-const {parseUrl} = require("../ws/parseUrl");
+const {getUp, saveUp} = require("../libs/saveUp");
+const {parseUrl} = require("../libs/parseUrl");
 const socket = io(`${wsDomain}:${wsMainPort}`);
 
 console.log("qqqqq aaaaaaaaaaaaa", );
