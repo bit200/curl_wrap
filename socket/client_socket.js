@@ -23,7 +23,8 @@ socket.on("connect", async () => {
         console.log(`[WS] Initializing registration`, { code });
 
         socket.emit("init", {
-            code: code
+            code: code,
+            force_ip: await getUp('ip.md')
         });
 
     } catch (error) {
