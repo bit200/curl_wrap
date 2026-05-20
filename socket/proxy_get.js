@@ -57,7 +57,9 @@ async function onSmartCurl (data, res) {
                 });
             }
 
-            clientResponse = await io.timeout(15000)
+            let timeout = (data.timeout || 60000) + 5000;
+
+            clientResponse = await io.timeout(timeout)
                 .to(matchedSocket.id)
                 .emitWithAck("curl", data);
 
