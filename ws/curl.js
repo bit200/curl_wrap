@@ -29,7 +29,7 @@ async function curl_direct_ws(url, options = {}) {
                 port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
                 headers: {...defaultHeaders, ...options.headers},
                 // Set the low-level socket timeout (defaulting to 10 seconds if not provided)
-                timeout: options.timeout || 10000
+                timeout: +options.timeout || 10000
             };
             console.log("qqqqq defaultHeaders",defaultHeaders, options );
 
@@ -73,7 +73,7 @@ async function curl_direct_ws(url, options = {}) {
 
             req.end();
         } catch (e) {
-            resolve('PARSER ERRROR 2 \n\n' + url, 'err');
+            resolve('PARSER ERRROR 2 \n\n' + url + '\n\n' + e.toString(), 'err');
         }
     });
 }
