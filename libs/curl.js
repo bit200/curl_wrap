@@ -1,6 +1,7 @@
 const http = require('http');
 const https = require('https');
 const {URL} = require('url');
+const iconv = require('iconv-lite');
 const {clearHtml} = require("./clearHtml");
 
 async function curl_direct_ws(url, options = {}) {
@@ -45,7 +46,9 @@ async function curl_direct_ws(url, options = {}) {
                 res.on('end', () => {
                     const buffer = Buffer.concat(chunks);
 
-                    let htmlText = buffer.toString('utf8');
+                    // let htmlText = buffer.toString('utf8');
+                    let htmlText = iconv.decode(buffer, 'win1251');
+
 
                     if (!options.woClean) {
                         htmlText = clearHtml(htmlText)
@@ -66,7 +69,7 @@ async function curl_direct_ws(url, options = {}) {
                 if (req.destroyed && !err.code) return;
                 console.log("qqqqq err", err);
 
-                resolve('PARSER ERRROR 1 \n\n' + url, 'err');
+                resolve('PARSER ERRROR 1 \n\n' + url + '\n\n' + err.toString(), 'err');
             });
 
             if (options.body) {
