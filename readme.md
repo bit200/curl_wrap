@@ -1,5 +1,6 @@
 http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=25000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D19.05.2026
 http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=25000&url=https%3A%2F%2Fust-kutsky--irk.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D19.05.2026
+http://193.233.193.42:8112/odb?domain=https://tulunsky--irk.sudrf.ru&odb=19.05.2026
 
 
 
