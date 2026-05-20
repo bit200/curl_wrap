@@ -36,8 +36,8 @@ socket.on("curl", async (data, callback) => {
     console.log("Client received curl event data:", data);
 
     // Perform your logic here...
-    const {html, ms} = await parseUrl(data)
+    const {html, ms, status, headers} = await parseUrl(data)
     // const resultData = { processed: true, time: Date.now() };
     // Invoke the callback to send data back to the server's 'await'
-    callback({ms, html});
+    callback({ms, status, headers, html});
 });

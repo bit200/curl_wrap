@@ -3,19 +3,24 @@ const https = require('https');
 const {URL} = require('url');
 const {clearHtml} = require("./clearHtml");
 
-async function curl_direct(url, options = {}) {
-    return new Promise((resolve, reject) => {
+async function curl_direct_ws(url, options = {}) {
+    return new Promise((_resolve, reject) => {
         try {
+            function resolve (html, status = 'ok') {
+                _resolve({html, status, headers: defaultHeaders, url})
+            }
+
+
             const parsedUrl = new URL(url);
             const protocol = parsedUrl.protocol === 'https:' ? https : http;
 
             const defaultHeaders = {
-                'User-Agent': options.UserAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': options.Accept || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': options.AcceptLanguage || 'ru,en-US;q=0.9,en;q=0.8'
+                'User-Agent': options.agent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': options.accept || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': options.lng || 'ru,en-US;q=0.9,en;q=0.8'
             };
 
-            defaultHeaders['Referer'] = options.prevUrl || 'https://ya.ru/search/?lr=971&search_source=yaru_desktop_common&search_domain=yaru';
+            defaultHeaders['Referer'] = options.ref || 'https://ya.ru/search/?lr=971&search_source=yaru_desktop_common&search_domain=yaru';
 
             const requestOptions = {
                 method: options.method || 'GET',
@@ -26,6 +31,7 @@ async function curl_direct(url, options = {}) {
                 // Set the low-level socket timeout (defaulting to 10 seconds if not provided)
                 timeout: options.timeout || 10000
             };
+            console.log("qqqqq defaultHeaders",defaultHeaders, options );
 
             const req = protocol.request(requestOptions, (res) => {
                 const chunks = [];
@@ -36,8 +42,8 @@ async function curl_direct(url, options = {}) {
 
                 res.on('end', () => {
                     const buffer = Buffer.concat(chunks);
-                    const decoder = new TextDecoder('windows-1251');
-                    let htmlText = decoder.decode(buffer);
+
+                    let htmlText = buffer.toString('utf8');
 
                     if (!options.woClean) {
                         htmlText = clearHtml(htmlText)
@@ -50,7 +56,7 @@ async function curl_direct(url, options = {}) {
             // Handle the timeout event directly on the request object
             req.on('timeout', () => {
                 req.destroy(); // Actively destroy the socket to stop the request
-                resolve('timeout error');
+                resolve('timeout error', 'err');
             });
 
             req.on('error', (err) => {
@@ -58,7 +64,7 @@ async function curl_direct(url, options = {}) {
                 if (req.destroyed && !err.code) return;
                 console.log("qqqqq err", err);
 
-                resolve('PARSER ERRROR 1 \n\n' + url);
+                resolve('PARSER ERRROR 1 \n\n' + url, 'err');
             });
 
             if (options.body) {
@@ -67,9 +73,9 @@ async function curl_direct(url, options = {}) {
 
             req.end();
         } catch (e) {
-            resolve('PARSER ERRROR 2 \n\n' + url);
+            resolve('PARSER ERRROR 2 \n\n' + url, 'err');
         }
     });
 }
 
-module.exports = {curl_direct};
+module.exports = {curl_direct_ws};

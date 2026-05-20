@@ -38,10 +38,10 @@ app.get("/clients", async (req, res) => {
         })
     })
 })
-app.get("/curl", async (req, res) => {
-
+async function onSmartCurl (data, res) {
     try {
-        let {url, code, ip} = req.query;
+        let {url, code, ip} = data;
+        console.log("qqqqq url, code, ip", {url, code, ip});
 
         let clientResponse;
         let matchedSocket = null;
@@ -60,11 +60,12 @@ app.get("/curl", async (req, res) => {
 
             clientResponse = await io.timeout(15000)
                 .to(matchedSocket.id)
-                .emitWithAck("curl", {url});
+                .emitWithAck("curl", data);
         } else {
             clientResponse = await io.timeout(15000)
-                .emitWithAck("curl", {url});
+                .emitWithAck("curl", data);
         }
+
 
         res.status(200).json({
             status: "ok",
@@ -73,14 +74,23 @@ app.get("/curl", async (req, res) => {
                 ip: matchedSocket.ip,
             },
             url,
-            query: req.query,
+            query: data,
             res: clientResponse[0]
         });
 
     } catch (err) {
+        console.log("qqqqq err", err);
         // Triggers if no socket client responds within 15 seconds
-        res.status(504).json({status: "error", message: "Socket client timeout or no clients connected"});
+        res.status(504).json({status: "error", message: "Socket client timeout or no clients connected", err: err.toString()});
     }
+}
+
+
+app.get("/curl", async (req, res) => {
+    onSmartCurl(req.query, res).then()
+});
+app.post("/curl", async (req, res) => {
+    onSmartCurl(req.body, res).then()
 });
 
 // Socket.io logic
