@@ -21,7 +21,9 @@ async function curl_direct_ws(url, options = {}) {
             const defaultHeaders = {
                 'User-Agent': options.agent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': options.accept || 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': options.lng || 'ru,en-US;q=0.9,en;q=0.8'
+                'Accept-Language': options.lng || 'ru,en-US;q=0.9,en;q=0.8',
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1"
             };
 
             defaultHeaders['Referer'] = options.ref || 'https://ya.ru/search/?lr=971&search_source=yaru_desktop_common&search_domain=yaru';
@@ -63,6 +65,10 @@ async function curl_direct_ws(url, options = {}) {
                 req.destroy(); // Actively destroy the socket to stop the request
                 resolve('timeout error', 'err');
             });
+
+            req.on("close", () => console.log("connection closed early"));
+            req.on("abort", () => console.log("aborted by server"));
+            req.on("aborted", () => console.log("response aborted"));
 
             req.on('error', (err) => {
                 // If the request was manually destroyed by a timeout, ignore the resulting error
