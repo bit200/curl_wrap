@@ -77,11 +77,11 @@ async function onSmartCurl (data, res) {
         res.status(200).json({
             status: "ok",
             url,
-            socket: {
+            socket: matchedSocket ? {
                 ip: matchedSocket.ip,
                 code: matchedSocket.code,
                 id: matchedSocket.id,
-            },
+            } : {},
             query: data,
             res: clientResponse[0]
         });
