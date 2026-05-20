@@ -8,6 +8,8 @@ async function curl_direct_ws(url, options = {}) {
         try {
             let timeout =  +options.timeout || 10000;
             function resolve (html, status = 'ok') {
+                // console.log("qqqqq defaultHeaders",html, defaultHeaders, options );
+
                 _resolve({html, status, headers: {...defaultHeaders, timeout}, url})
             }
 
@@ -32,7 +34,6 @@ async function curl_direct_ws(url, options = {}) {
                 // Set the low-level socket timeout (defaulting to 10 seconds if not provided)
                 timeout
             };
-            console.log("qqqqq defaultHeaders",defaultHeaders, options );
 
             const req = protocol.request(requestOptions, (res) => {
                 const chunks = [];

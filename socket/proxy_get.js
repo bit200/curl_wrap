@@ -61,6 +61,7 @@ async function onSmartCurl (data, res) {
                 .emitWithAck("curl", data);
 
 
+            console.log("qqqqq clientResponse", clientResponse);
             res.status(200).json({
                 status: "ok",
                 url,
@@ -70,7 +71,7 @@ async function onSmartCurl (data, res) {
                     id: matchedSocket.id,
                 } : {},
                 query: data,
-                res: clientResponse ? matchedSocket[0] : {}
+                res: clientResponse ? clientResponse[0] : {}
             });
         }
 

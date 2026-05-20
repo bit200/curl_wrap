@@ -1,8 +1,8 @@
 const { io } = require("socket.io-client");
-const {wsMainPort} = require("../env");
+const {wsMainPort, wsDomain} = require("../env");
 const {getUp, saveUp} = require("../ws/saveUp");
 const {parseUrl} = require("../ws/parseUrl");
-const socket = io(`http://localhost:${wsMainPort}`);
+const socket = io(`${wsDomain}:${wsMainPort}`);
 
 console.log("qqqqq aaaaaaaaaaaaa", );
 
@@ -22,7 +22,6 @@ socket.on("connect", async () => {
 
         console.log(`[WS] Initializing registration`, { code });
 
-        // Send the init structure matching your protocol format
         socket.emit("init", {
             code: code
         });
