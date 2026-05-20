@@ -64,16 +64,16 @@ async function onSmartCurl (data, res) {
 
             console.log("qqqqq clientResponse", clientResponse);
             let response = clientResponse ? clientResponse[0] : {}
-            let html = response?.html;
+            let html = response?.html || '-';
 
             res.status(200).json({
                 status: "ok",
                 url,
                 regexps: data.woReg ? {} : {
-                    otvet: html.match(/ответчик/gi).length,
-                    503: html.match(/503/gi).length,
-                    'информация недоступна': html.match(/Информация временно недоступна/gi).length,
-                    'дел не назначено': html.match(/дел не назначено/gi).length,
+                    otvet: html.match(/ответчик/gi)?.length,
+                    503: html.match(/503/gi)?.length,
+                    'информация недоступна': html.match(/Информация временно недоступна/gi)?.length,
+                    'дел не назначено': html.match(/дел не назначено/gi)?.length,
                 },
                 socket: matchedSocket ? {
                     ip: matchedSocket.ip,
