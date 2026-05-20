@@ -12,7 +12,7 @@ http://localhost:8112/curl?url=https://itrum.ru&ip=127.0.0.1&ref=https://ya.ru&l
 
 
 http://193.233.193.42:8112/curl?ip=151.0.51.237&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D14.05.2026
-http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D14.05.2026
+http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D17.05.2026
 
 
 
