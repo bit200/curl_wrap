@@ -83,7 +83,7 @@ async function onSmartCurl (data, res) {
                 id: matchedSocket.id,
             } : {},
             query: data,
-            res: clientResponse[0]
+            res: clientResponse ? matchedSocket[0] : {}
         });
 
     } catch (err) {
