@@ -5,8 +5,9 @@ const {wsMainPort} = require("../env");
 const {timer} = require("./../libs/timer");
 
 const app = express();
-const httpServer = createServer(app);
+app.set("trust proxy", true);
 
+const httpServer = createServer(app);
 // Initialize Socket.io attached to the same HTTP server
 const io = new Server(httpServer, {
     cors: {origin: "*"}
@@ -111,11 +112,18 @@ io.on("connection", (socket) => {
     socket.on("init", (initData) => {
 
         // You can attach the code directly to the socket object for future route tracking!
-        const connectionIp = socket.handshake.address;
+        // const connectionIp = socket.handshake.address;
+        const forwarded = socket.handshake.headers["x-forwarded-for"];
+
+        const realIp = forwarded
+            ? forwarded.split(",")[0].trim()
+            : socket.handshake.address;
+
+        console.log("qqqqq forwarded", forwarded, socket.conn.remoteAddress);
 
         // Save identifying parameters directly onto the socket instance
         socket.code = initData.code;
-        socket.ip = (initData.force_ip || connectionIp).replace('::ffff:', '');
+        socket.ip = (initData.force_ip || realIp).replace('::ffff:', '');
 
         console.log(`Registration received from socket ${socket.id}:`, socket.ip, initData);
     });
