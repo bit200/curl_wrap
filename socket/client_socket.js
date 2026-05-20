@@ -22,9 +22,13 @@ socket.on("connect", async () => {
 
         console.log(`[WS] Initializing registration`, { code });
 
+        let force_ip = await getUp('ip.md');
+        if (force_ip) {
+            force_ip = force_ip.replace(/\n/gi, '')
+        }
         socket.emit("init", {
             code: code,
-            force_ip: await getUp('ip.md')
+            force_ip
         });
 
     } catch (error) {
