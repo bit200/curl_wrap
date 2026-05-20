@@ -6,8 +6,9 @@ const {clearHtml} = require("./clearHtml");
 async function curl_direct_ws(url, options = {}) {
     return new Promise((_resolve, reject) => {
         try {
+            let timeout =  +options.timeout || 10000;
             function resolve (html, status = 'ok') {
-                _resolve({html, status, headers: defaultHeaders, url})
+                _resolve({html, status, headers: {...defaultHeaders, timeout}, url})
             }
 
 
@@ -29,7 +30,7 @@ async function curl_direct_ws(url, options = {}) {
                 port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
                 headers: {...defaultHeaders, ...options.headers},
                 // Set the low-level socket timeout (defaulting to 10 seconds if not provided)
-                timeout: +options.timeout || 10000
+                timeout
             };
             console.log("qqqqq defaultHeaders",defaultHeaders, options );
 

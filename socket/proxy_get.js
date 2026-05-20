@@ -29,11 +29,11 @@ async function getSocket({ip, code}) {
 app.get("/clients", async (req, res) => {
     const sockets = await io.fetchSockets();
     res.send({
-        clients: sockets.map(it => {
+        items: sockets.map(it => {
             return {
-                id: it.id,
                 ip: it.ip,
-                code: it.code
+                code: it.code,
+                id: it.id
             }
         })
     })
@@ -47,9 +47,10 @@ async function onSmartCurl (data, res) {
         let matchedSocket = null;
 
         // Check if filtering parameters were provided
+        matchedSocket = await getSocket({ip, code})
+
         if (code || ip) {
             // 1. Fetch all active sockets
-            matchedSocket = await getSocket({ip, code})
 
             if (!matchedSocket) {
                 return res.status(404).json({
@@ -62,18 +63,23 @@ async function onSmartCurl (data, res) {
                 .to(matchedSocket.id)
                 .emitWithAck("curl", data);
         } else {
+            let sockets = await io.fetchSockets();
+            matchedSocket = sockets[0];
+
             clientResponse = await io.timeout(15000)
+                .to(matchedSocket.id)
                 .emitWithAck("curl", data);
         }
 
 
         res.status(200).json({
             status: "ok",
-            socket: {
-                code: matchedSocket.code,
-                ip: matchedSocket.ip,
-            },
             url,
+            socket: {
+                ip: matchedSocket.ip,
+                code: matchedSocket.code,
+                id: matchedSocket.id,
+            },
             query: data,
             res: clientResponse[0]
         });
