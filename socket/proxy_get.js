@@ -47,11 +47,8 @@ async function onSmartCurl (data, res) {
         let matchedSocket = null;
 
         // Check if filtering parameters were provided
-        matchedSocket = await getSocket({ip, code})
 
-        if (code || ip) {
-            // 1. Fetch all active sockets
-
+        async function action () {
             if (!matchedSocket) {
                 return res.status(404).json({
                     status: "err",
@@ -62,13 +59,18 @@ async function onSmartCurl (data, res) {
             clientResponse = await io.timeout(15000)
                 .to(matchedSocket.id)
                 .emitWithAck("curl", data);
+        }
+
+
+        if (code || ip) {
+            // 1. Fetch all active sockets
+            matchedSocket = await getSocket({ip, code})
+            await action()
+
         } else {
             let sockets = await io.fetchSockets();
             matchedSocket = sockets[0];
-
-            clientResponse = await io.timeout(15000)
-                .to(matchedSocket.id)
-                .emitWithAck("curl", data);
+            await action()
         }
 
 
