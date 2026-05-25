@@ -36,9 +36,26 @@ socket.on("connect", async () => {
     }
 });
 
-socket.on("curl", async (data, callback) => {
-    console.log("Client received curl event data:", data);
+let hist = []
+getUp('history.json').then(_hist => {
+    try {
+        hist = JSON.parse(_hist) || []
+    } catch(e) {
+                hist = []
+    }
+})
+console.log("qqqqq hist", hist);
 
+socket.on("curl", async (data, callback) => {
+    // console.log("Client received curl event data:", data);
+
+    try {
+        hist.unshift({cd: new Date().getTime(), data})
+        hist = hist.slice(0, 30)
+        saveUp('history.json', JSON.stringify(hist, null, 4), true).then()
+    } catch(e) {
+
+    }
     // Perform your logic here...
     const {html, ms, status, headers} = await parseUrl(data)
     // const resultData = { processed: true, time: Date.now() };

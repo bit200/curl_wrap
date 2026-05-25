@@ -5,6 +5,7 @@ const iconv = require('iconv-lite');
 const {clearHtml} = require("./clearHtml");
 
 async function curl_direct_ws(url, options = {}) {
+    // console.log = () => {}
     return new Promise((_resolve, reject) => {
         try {
             let timeout =  +options.timeout || 10000;
@@ -46,7 +47,7 @@ async function curl_direct_ws(url, options = {}) {
                 });
 
                 res.on('end', () => {
-                    console.log("qqqqq finish", );
+                    // console.log("qqqqq finish", );
                     const buffer = Buffer.concat(chunks);
 
                     // let htmlText = buffer.toString('utf8');
@@ -67,9 +68,9 @@ async function curl_direct_ws(url, options = {}) {
                 resolve('timeout error', 'err');
             });
 
-            req.on("close", () => console.log("connection closed early"));
-            req.on("abort", () => console.log("aborted by server"));
-            req.on("aborted", () => console.log("response aborted"));
+            // req.on("close", () => console.log("connection closed early"));
+            // req.on("abort", () => console.log("aborted by server"));
+            // req.on("aborted", () => console.log("response aborted"));
 
             req.on('error', (err) => {
                 // If the request was manually destroyed by a timeout, ignore the resulting error

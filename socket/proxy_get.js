@@ -57,7 +57,7 @@ async function onSmartCurl (data, res) {
                 });
             }
 
-            let timeout = (data.timeout || 60000) + 5000;
+            let timeout = (data.timeout || 30000) + 5000;
 
             clientResponse = await io.timeout(timeout)
                 .to(matchedSocket.id)
@@ -113,7 +113,7 @@ async function onSmartCurl (data, res) {
 app.get("/odb", async (req, res) => {
     let data = req.query;
     data.ip = data.ip || '193.233.193.42'
-    data.timeout = data.timeout || 20000
+    data.timeout = data.timeout || 30000
     data.url = `${data.domain}/modules.php?name=sud_delo&srv_num=1&H_date=${data.odb || '19.05.2026'}`
     onSmartCurl(data, res).then()
 });
