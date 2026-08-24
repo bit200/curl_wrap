@@ -1,7 +1,7 @@
 const express = require("express");
 const {createServer} = require("http");
 const {Server} = require("socket.io");
-const {wsMainPort} = require("../env");
+const {wsMainPort, wsDomain} = require("../env");
 const {timer} = require("./../libs/timer");
 
 const app = express();
@@ -156,5 +156,5 @@ io.on("connection", (socket) => {
 // Single port for both Express and Socket.io
 const PORT = wsMainPort;
 httpServer.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server listening on 127.0.0.1:${PORT}, public url: ${wsDomain}`);
 });
