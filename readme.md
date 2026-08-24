@@ -266,17 +266,15 @@ openssl rand -hex 32
 
 Запустить:
 
-```bash
-npx pm2 start ecosystem.config.cjs
-npx pm2 install pm2-logrotate
-npx pm2 set pm2-logrotate:max_size 20M
-npx pm2 set pm2-logrotate:retain 14
-npx pm2 set pm2-logrotate:compress true
-npx pm2 save
-npx pm2 status
-```
+Production использует PM2 в foreground-режиме под systemd: PM2 перезапускает
+приложение, а systemd восстанавливает сам PM2 после перезагрузки VPS. Готовые
+файлы находятся в `deploy/systemd/curl-wrap-pm2.service.example` и
+`deploy/logrotate/curl-wrap`. После установки:
 
-После настройки systemd `pm2 resurrect` восстанавливает сохранённый процесс.
+```bash
+sudo systemctl enable --now curl-wrap-pm2.service
+sudo systemctl status curl-wrap-pm2.service
+```
 
 Nginx-конфигурация находится в
 `deploy/nginx/curl-wrap.conf.example`. Порт `8112` должен слушать только
@@ -290,16 +288,15 @@ cd /opt/curl-wrap
 # Распаковать новую проверенную сборку поверх исходников без замены .env.
 npm ci --omit=dev
 npm test
-npx pm2 reload ecosystem.config.cjs --update-env
-npx pm2 save
+sudo systemctl reload curl-wrap-pm2.service
 curl -fsS http://127.0.0.1:8112/healthz
 ```
 
 Диагностика:
 
 ```bash
-npx pm2 status
-npx pm2 logs curl-wrap-relay --lines 100
+sudo systemctl status curl-wrap-pm2.service
+sudo journalctl -u curl-wrap-pm2.service -n 100 --no-pager
 curl -fsS http://127.0.0.1:8112/healthz | jq
 curl -sS http://127.0.0.1:8112/readyz | jq
 sudo nginx -t
