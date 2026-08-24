@@ -14,7 +14,7 @@ const wsServerUrl = useClientPort ? `${wsDomain}:${wsMainPort}` : wsDomain;
 
 // Токен executor'а: прокси на домене отклоняет подключение без него
 // ("Invalid executor token"). Кладём в переменную окружения или в up/token.md.
-const executorToken = (process.env.EXECUTOR_TOKEN || process.env.CURL_PROXY_TOKEN || '').trim();
+const executorToken = (process.env.TOKEN || process.env.EXECUTOR_TOKEN || process.env.CURL_PROXY_TOKEN || '').trim();
 
 module.exports = {
     wsDomain,
