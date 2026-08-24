@@ -11,14 +11,32 @@ class RelayBroker {
     }
 
     register(socket, identity) {
+        this.disconnectDuplicate(identity, socket.id);
+        this.executors.set(socket.id, {...identity, socket, inflight: 0, connectedAt: new Date().toISOString()});
+        this.logger.info?.(JSON.stringify({
+            event: identity.ready ? 'executor_connected' : 'executor_pending_registration',
+            clientId: identity.ready ? identity.clientId : null,
+            legacyIp: identity.legacyIp || null,
+        }));
+        this.pump();
+    }
+
+    disconnectDuplicate(identity, exceptSocketId) {
+        if (!identity.ready) return;
         for (const [socketId, executor] of this.executors) {
-            if (executor.clientId === identity.clientId) {
+            if (socketId !== exceptSocketId && executor.ready && executor.clientId === identity.clientId) {
                 executor.socket.disconnect(true);
                 this.executors.delete(socketId);
             }
         }
-        this.executors.set(socket.id, {...identity, socket, inflight: 0, connectedAt: new Date().toISOString()});
-        this.logger.info?.(JSON.stringify({event: 'executor_connected', clientId: identity.clientId, legacyIp: identity.legacyIp || null}));
+    }
+
+    updateIdentity(socket, identity) {
+        const executor = this.executors.get(socket.id);
+        if (!executor) return;
+        this.disconnectDuplicate(identity, socket.id);
+        Object.assign(executor, identity);
+        this.logger.info?.(JSON.stringify({event: 'executor_registered', clientId: identity.clientId, legacyIp: identity.legacyIp || null}));
         this.pump();
     }
 
@@ -36,9 +54,14 @@ class RelayBroker {
             code: executor.code || executor.clientId,
             id: executor.socket.id,
             clientId: executor.clientId,
+            ready: executor.ready,
             inflight: executor.inflight,
             connectedAt: executor.connectedAt,
         }));
+    }
+
+    readyCount() {
+        return [...this.executors.values()].filter((executor) => executor.ready).length;
     }
 
     dispatch(payload) {
@@ -61,6 +84,7 @@ class RelayBroker {
     choose(payload) {
         const selector = payload.clientId || payload.code || payload.ip;
         return [...this.executors.values()]
+            .filter((executor) => executor.ready)
             .filter((executor) => executor.inflight < this.config.maxInflightPerExecutor)
             .filter((executor) => !selector || [executor.clientId, executor.code, executor.legacyIp, executor.remoteIp].includes(selector))
             .sort((left, right) => left.inflight - right.inflight || left.connectedAt.localeCompare(right.connectedAt))[0];

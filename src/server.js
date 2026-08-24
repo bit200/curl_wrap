@@ -9,21 +9,55 @@ const {ServiceError} = require('./errors');
 const {normalizeFetchRequest, odbRequest} = require('./request');
 const {createRateLimiter, matchesAnyToken, requireApiToken, securityHeaders} = require('./security');
 
+const CLIENT_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,63}$/;
+
+function validateClientId(value) {
+    const clientId = String(value || '').trim();
+    if (!CLIENT_ID_PATTERN.test(clientId)) {
+        throw new ServiceError('INVALID_CLIENT_ID', 'clientId must contain 1-64 safe characters', 422);
+    }
+    return clientId;
+}
+
+function validateLegacyIp(value) {
+    const legacyIp = String(value || '').trim();
+    if (legacyIp && !net.isIP(legacyIp)) {
+        throw new ServiceError('INVALID_LEGACY_IP', 'legacyIp must be an IPv4 or IPv6 address', 422);
+    }
+    return legacyIp;
+}
+
 function socketIdentity(socket, config) {
     const auth = socket.handshake.auth || {};
     if (!matchesAnyToken(String(auth.token || ''), config.executorTokens)) {
         throw new ServiceError('UNAUTHORIZED_EXECUTOR', 'Invalid executor token', 401);
     }
-    const clientId = String(auth.clientId || auth.code || '').trim();
-    if (!/^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,63}$/.test(clientId)) {
-        throw new ServiceError('INVALID_CLIENT_ID', 'clientId must contain 1-64 safe characters', 422);
-    }
-    const legacyIp = String(auth.legacyIp || auth.force_ip || '').trim();
-    if (legacyIp && !net.isIP(legacyIp)) {
-        throw new ServiceError('INVALID_LEGACY_IP', 'legacyIp must be an IPv4 or IPv6 address', 422);
-    }
+    const suppliedClientId = String(auth.clientId || auth.code || '').trim();
+    const clientId = suppliedClientId ? validateClientId(suppliedClientId) : `pending:${socket.id}`;
+    const legacyIp = validateLegacyIp(auth.legacyIp || auth.force_ip);
     const remoteIp = String(socket.handshake.address || '').replace(/^::ffff:/, '');
-    return {clientId, code: String(auth.code || clientId), legacyIp, remoteIp};
+    return {
+        clientId,
+        code: suppliedClientId ? String(auth.code || clientId) : '',
+        legacyIp,
+        remoteIp,
+        ready: Boolean(suppliedClientId),
+    };
+}
+
+function legacyInitIdentity(data, currentIdentity) {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        throw new ServiceError('INVALID_CLIENT_ID', 'Legacy init payload must be an object', 422);
+    }
+    const clientId = validateClientId(data.clientId || data.code);
+    const legacyIp = validateLegacyIp(data.legacyIp || data.force_ip || currentIdentity.legacyIp);
+    return {
+        ...currentIdentity,
+        clientId,
+        code: String(data.code || clientId),
+        legacyIp,
+        ready: true,
+    };
 }
 
 function regexpCounters(html) {
@@ -73,14 +107,27 @@ function createRelayServer(config, logger = console) {
     });
     io.on('connection', (socket) => {
         broker.register(socket, socket.data.identity);
+        socket.on('init', (data, acknowledge) => {
+            try {
+                const identity = legacyInitIdentity(data, socket.data.identity);
+                socket.data.identity = identity;
+                broker.updateIdentity(socket, identity);
+                if (typeof acknowledge === 'function') acknowledge({status: 'ok', clientId: identity.clientId});
+            } catch (error) {
+                logger.error?.(JSON.stringify({event: 'executor_registration_failed', code: error.code, message: error.message}));
+                if (typeof acknowledge === 'function') acknowledge({status: 'error', code: error.code, message: error.message});
+                socket.emit('registration_error', {code: error.code, message: error.message});
+                socket.disconnect(true);
+            }
+        });
         socket.on('message', () => {});
         socket.on('disconnect', () => broker.unregister(socket));
     });
 
     app.get('/healthz', (req, res) => res.json({ok: true, service: 'curl-wrap', version: '2.0.0'}));
     app.get('/readyz', (req, res) => {
-        const clients = broker.list();
-        res.status(clients.length > 0 ? 200 : 503).json({ready: clients.length > 0, executors: clients.length, queued: broker.queue.length});
+        const executors = broker.readyCount();
+        res.status(executors > 0 ? 200 : 503).json({ready: executors > 0, executors, queued: broker.queue.length});
     });
 
     const apiAuth = requireApiToken(config);

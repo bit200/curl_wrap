@@ -96,3 +96,38 @@ test('unauthorized Socket.IO executor is rejected', async () => {
     unauthorized.close();
     assert.equal(error.data.code, 'UNAUTHORIZED_EXECUTOR');
 });
+
+test('authenticated legacy executor can register with init after connecting', async () => {
+    const legacy = connect(baseUrl, {
+        auth: {token: EXECUTOR_TOKEN},
+        transports: ['websocket'],
+        reconnection: false,
+    });
+    legacy.on('curl', (payload, callback) => callback({
+        html: '<html>legacy executor</html>',
+        ms: 3,
+        status: 200,
+        headers: {'content-type': 'text/html'},
+        bytes: 28,
+    }));
+    await new Promise((resolve, reject) => {
+        legacy.once('connect', resolve);
+        legacy.once('connect_error', reject);
+    });
+    const registration = await new Promise((resolve) => {
+        legacy.emit('init', {code: 'legacy-igor', force_ip: '151.0.51.237'}, resolve);
+    });
+    assert.equal(registration.status, 'ok');
+
+    const url = new URL('/curl', baseUrl);
+    url.searchParams.set('code', 'legacy-igor');
+    url.searchParams.set('url', 'https://example.com/legacy');
+    const response = await fetch(url, {headers: {'x-api-key': API_TOKEN}});
+    const body = await response.json();
+    legacy.close();
+
+    assert.equal(response.status, 200);
+    assert.equal(body.socket.code, 'legacy-igor');
+    assert.equal(body.socket.ip, '151.0.51.237');
+    assert.equal(body.res.html, '<html>legacy executor</html>');
+});
