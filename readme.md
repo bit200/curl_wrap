@@ -113,9 +113,12 @@ Executor должен работать на машине, с IP которой �
 Требуется Node.js 22–24.
 
 ```bash
-git clone --branch codex/secure-production-relay \
-  https://github.com/bit200/curl_wrap.git ~/work/curl_wrap
-cd ~/work/curl_wrap
+mkdir -p ~/work/curl_wrap-secure
+curl -fsSLo /tmp/curl-wrap-client-v2.0.0.tar.gz \
+  https://curl-proxy.212-8-247-141.sslip.io/download/curl-wrap-client-v2.0.0.tar.gz
+tar -xzf /tmp/curl-wrap-client-v2.0.0.tar.gz \
+  --strip-components=1 -C ~/work/curl_wrap-secure
+cd ~/work/curl_wrap-secure
 npm ci --omit=dev
 cp .env.executor.example .env.executor
 chmod 600 .env.executor
@@ -244,8 +247,9 @@ URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
 используется, потому что подключения Socket.IO хранятся в памяти процесса.
 
 ```bash
-git clone --branch codex/secure-production-relay \
-  https://github.com/bit200/curl_wrap.git /opt/curl-wrap
+mkdir -p /opt/curl-wrap
+tar -xzf curl-wrap-client-v2.0.0.tar.gz \
+  --strip-components=1 -C /opt/curl-wrap
 cd /opt/curl-wrap
 npm ci --omit=dev
 cp .env.example .env
@@ -283,9 +287,7 @@ WebSocket Upgrade и `proxy_buffering off`.
 
 ```bash
 cd /opt/curl-wrap
-git fetch origin codex/secure-production-relay
-git switch codex/secure-production-relay
-git pull --ff-only
+# Распаковать новую проверенную сборку поверх исходников без замены .env.
 npm ci --omit=dev
 npm test
 npx pm2 reload ecosystem.config.cjs --update-env
