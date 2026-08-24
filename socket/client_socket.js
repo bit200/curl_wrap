@@ -1,8 +1,18 @@
 const { io } = require("socket.io-client");
 const {wsServerUrl} = require("../env");
+const {wsMainPort, wsDomain} = require("../env");
 const {getUp, saveUp} = require("../libs/saveUp");
 const {parseUrl} = require("../libs/parseUrl");
 const socket = io(wsServerUrl);
+const express = require("express");
+
+
+const app = express();
+app.set("trust proxy", true);
+const PORT = wsMainPort;
+app.listen(PORT, () => {
+    console.log(`Server listening on 127.0.0.1:${PORT}, public url: ${wsDomain}`);
+});
 
 console.log("qqqqq aaaaaaaaaaaaa", );
 
