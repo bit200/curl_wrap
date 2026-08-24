@@ -1,17 +1,11 @@
-let {clearHtml} = require("./clearHtml");
-let {saveUp, getUp} = require("./saveUp");
-const {curl_direct, curl_direct_ws} = require("./curl");
+'use strict';
 
-async function parseUrl (json) {
+const {curl_direct_ws} = require('./curl');
 
-    // let html = await getUp('curl.html')
-    let cd = new Date().getTime()
-    let {html, status, headers } = await curl_direct_ws(json.url, json)
-    // console.log("qqqqq html ----->>>>>>>> ", json, {size: html?.length} );
-    if (json.saveUp) {
-        await saveUp(json.saveUp, html)
-    }
-    return {html, ms: new Date().getTime() - cd, status, headers};
+async function parseUrl(json, config) {
+    const startedAt = Date.now();
+    const result = await curl_direct_ws(json.url, json, config);
+    return {...result, ms: Date.now() - startedAt};
 }
 
-module.exports = {parseUrl}
+module.exports = {parseUrl};

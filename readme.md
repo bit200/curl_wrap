@@ -1,72 +1,316 @@
-imeout: 20000,
-url: 'https://chebar--chel.sudrf.ru/modules.php?name=sud_delo&srv_num=1&H_date=15.05.2024'
-}
-Client received curl event data: {
-odb: '22.05.2024',
-domain: 'https://zlatoust--chel.sudrf.ru',
-ip: '151.0.51.237',
-timeout: 20000,
-url: 'https://zlatoust--chel.sudrf.ru/modules.php?name=sud_delo&srv_num=1&H_date=22.05.2024'
-}
-qqqqq finish
-connection closed early
-qqqqq finish
-connection closed early
-Client received curl event data: {
-odb: '16.05.2024',
-domain: 'https://chebar--chel.sudrf.ru',
-ip: '151.0.51.237',
-timeout: 20000,
-url: 'https://chebar--chel.sudrf.ru/modules.php?name=sud_delo&srv_num=1&H_date=16.05.2024'
-}
-qqqqq finish
-connection closed early
-qqqqq finish
-connection closed early
-Client received curl event data: {
-odb: '17.05.2024',
-domain: 'https://chebar--chel.sudrf.ru',
-ip: '151.0.51.237',
+# curl-wrap: безопасный relay для загрузки страниц судов
 
+Сервис сохраняет прежний способ работы: HTTP API принимает запрос `/curl` или
+`/odb`, передаёт его подключённому Socket.IO executor-у и возвращает HTML в
+знакомом JSON-формате. HTTP API и Socket.IO доступны на одном домене и порту.
 
+Production endpoint:
 
+```text
+https://curl-proxy.212-8-247-141.sslip.io
+```
 
-http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=25000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D19.05.2026
-http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=25000&url=https%3A%2F%2Fust-kutsky--irk.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D19.05.2026
-http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=25000&url=https%3A%2F%2Ftaganrogsky--ros.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26name_op%3Dr%26delo_id%3D1540005%26case_type%3D0%26new%3D0%26G1_PARTS__NAMESS%3D%26g1_case__CASE_NUMBERSS%3D%26g1_case__JUDICIAL_UIDSS%3D%26delo_table%3Dg1_case%26g1_case__ENTRY_DATE1D%3D01.01.2015%26g1_case__ENTRY_DATE2D%3D01.01.2016%26G1_CASE__JUDGE%3D%26g1_case__RESULT_DATE1D%3D%26g1_case__RESULT_DATE2D%3D%26G1_CASE__RESULT%3D%26G1_CASE__BUILDING_ID%3D%26G1_CASE__COURT_STRUCT%3D%26G1_EVENT__EVENT_NAME%3D%26G1_EVENT__EVENT_DATEDD%3D%26G1_PARTS__PARTS_TYPE%3D%26G1_PARTS__INN_STRSS%3D%26G1_PARTS__KPP_STRSS%3D%26G1_PARTS__OGRN_STRSS%3D%26G1_PARTS__OGRNIP_STRSS%3D%26G1_RKN_ACCESS_RESTRICTION__RKN_REASON%3D%26g1_rkn_access_restriction__RKN_RESTRICT_URLSS%3D%26g1_requirement__ACCESSION_DATE1D%3D%26g1_requirement__ACCESSION_DATE2D%3D%26G1_REQUIREMENT__CATEGORY%3D%26g1_requirement__ESSENCESS%3D%26g1_requirement__JOIN_END_DATE1D%3D%26g1_requirement__JOIN_END_DATE2D%3D%26G1_REQUIREMENT__PUBLICATION_ID%3D%26G1_DOCUMENT__PUBL_DATE1D%3D%26G1_DOCUMENT__PUBL_DATE2D%3D%26G1_CASE__VALIDITY_DATE1D%3D%26G1_CASE__VALIDITY_DATE2D%3D%26G1_ORDER_INFO__ORDER_DATE1D%3D%26G1_ORDER_INFO__ORDER_DATE2D%3D%26G1_ORDER_INFO__ORDER_NUMSS%3D%26G1_ORDER_INFO__EXTERNALKEYSS%3D%26G1_ORDER_INFO__STATE_ID%3D%26G1_ORDER_INFO__RECIP_ID%3D%26Submit%3D%25CD%25E0%25E9%25F2%25E8
-http://193.233.193.42:8112/odb?domain=https://tulunsky--irk.sudrf.ru&odb=19.05.2026
-http://193.233.193.42:8112/odb?domain=https://chuhlomsky--kst.sudrf.ru&odb=19.05.2026
-http://193.233.193.42:8112/odb?domain=https://bratski--irk.sudrf.ru&odb=19.05.2026
-http://193.233.193.42:8112/odb?&odb=19.05.2026&domain=https://nizhneudinsky--irk.sudrf.ru
+Секреты не хранятся в Git. `API_TOKEN` и `EXECUTOR_TOKEN` администратор передаёт
+отдельно.
 
+## Игорю: что изменилось
 
+Сохранены:
 
+- `GET /curl` и все основные query-параметры;
+- `POST /curl` с JSON;
+- `GET /odb`;
+- `GET /clients`;
+- выбор executor-а через `ip` или `code`;
+- поле `socket`, `query`, `regexps` и `res` в ответе;
+- Socket.IO и событие `curl`;
+- один общий порт для HTTP и Socket.IO.
 
+Добавлены только два обязательных секрета:
 
-http://localhost:8112/curl?url=https://itrum.ru&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000
+1. HTTP-клиент передаёт `X-API-Key: <API_TOKEN>` или
+   `Authorization: Bearer <API_TOKEN>`.
+2. Socket.IO executor передаёт `EXECUTOR_TOKEN` при подключении.
 
-http://193.233.193.42:8112/curl?url=https://itrum.ru&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000
-http://193.233.193.42:8112/clients
+Токен нельзя добавлять в query string: URL попадает в access-логи и историю
+браузера.
 
-http://193.233.193.42:8112/curl?ip=151.0.51.237&url=https://itrum.ru&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000
+## Быстрая проверка API
 
-http://localhost:8112/curl?url=https://itrum.ru&ip=127.0.0.1&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome
+```bash
+export CURL_WRAP_URL=https://curl-proxy.212-8-247-141.sslip.io
+export CURL_WRAP_API_TOKEN='получить-у-администратора'
 
-http://localhost:8112/curl?url=https://itrum.ru&ip=127.0.0.1&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000
+curl -fsS "$CURL_WRAP_URL/clients" \
+  -H "X-API-Key: $CURL_WRAP_API_TOKEN" | jq
+```
 
+Если executor подключён, `items` содержит его `ip`, `code`, `clientId` и число
+активных запросов.
 
-http://193.233.193.42:8112/curl?ip=151.0.51.237&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D14.05.2026
-http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D17.05.2026
+Старый вызов `/curl`:
 
+```bash
+curl -fsS -G "$CURL_WRAP_URL/curl" \
+  -H "X-API-Key: $CURL_WRAP_API_TOKEN" \
+  --data-urlencode 'ip=193.233.193.42' \
+  --data-urlencode 'timeout=25000' \
+  --data-urlencode 'url=https://krasnodar-prikubansky--krd.sudrf.ru/modules.php?name=sud_delo&srv_num=1&H_date=19.05.2026' \
+  | jq
+```
 
+Старый вызов `/odb`:
 
+```bash
+curl -fsS -G "$CURL_WRAP_URL/odb" \
+  -H "X-API-Key: $CURL_WRAP_API_TOKEN" \
+  --data-urlencode 'ip=193.233.193.42' \
+  --data-urlencode 'odb=19.05.2026' \
+  --data-urlencode 'domain=https://tulunsky--irk.sudrf.ru' \
+  | jq
+```
 
-http://193.233.193.42:8112/curl?ip=151.0.51.237&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D14.05.2026
+Рабочий `POST /curl`:
 
-http://193.233.193.42:8112/curl?ip=193.233.193.42&timeout=10000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D07.04.2026
+```bash
+curl -fsS "$CURL_WRAP_URL/curl" \
+  -H "Authorization: Bearer $CURL_WRAP_API_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data '{
+    "ip": "193.233.193.42",
+    "timeout": 25000,
+    "url": "https://ust-kutsky--irk.sudrf.ru/"
+  }' | jq
+```
 
-http://193.233.193.42:8112/curl?ip=193.233.193.42&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D19.05.2026
-http://193.233.193.42:8112/curl?ip=151.0.51.237&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000&url=https%3A%2F%2Fkrasnodar-prikubansky--krd.sudrf.ru%2Fmodules.php%3Fname%3Dsud_delo%26srv_num%3D1%26H_date%3D19.05.2026
+## Минимальное изменение существующего кода
 
+Было:
 
+```js
+const response = await fetch(`${baseUrl}/curl?${params}`);
+```
 
+Стало:
+
+```js
+const response = await fetch(`${baseUrl}/curl?${params}`, {
+    headers: {
+        'X-API-Key': process.env.CURL_WRAP_API_TOKEN,
+    },
+});
+```
+
+Адрес меняется на production endpoint выше. Остальные параметры можно не
+переписывать.
+
+## Запуск executor-а
+
+Executor должен работать на машине, с IP которой требуется обращаться к
+сайтам судов. Он сам устанавливает исходящее соединение с relay; открывать
+входящий порт на executor-машине не нужно.
+
+Требуется Node.js 22–24.
+
+```bash
+git clone --branch codex/secure-production-relay \
+  https://github.com/bit200/curl_wrap.git ~/work/curl_wrap
+cd ~/work/curl_wrap
+npm ci --omit=dev
+cp .env.executor.example .env.executor
+chmod 600 .env.executor
+```
+
+Заполнить `.env.executor`:
+
+```env
+PROXY_URL=https://curl-proxy.212-8-247-141.sslip.io
+EXECUTOR_TOKEN=получить-у-администратора
+CLIENT_ID=igor-office
+EXECUTOR_LEGACY_IP=193.233.193.42
+```
+
+`EXECUTOR_LEGACY_IP` — совместимый псевдоним. Если старые API-вызовы содержат
+`ip=193.233.193.42`, оставьте это значение, даже если фактический публичный IP
+машины изменился. Для новых вызовов лучше использовать `code=igor-office`.
+
+Ручной запуск:
+
+```bash
+node --env-file=.env.executor socket/client_socket.js
+```
+
+Успешное подключение выглядит так:
+
+```json
+{"event":"executor_connected","clientId":"igor-office","proxyUrl":"https://curl-proxy.212-8-247-141.sslip.io"}
+```
+
+### Постоянный запуск executor-а через PM2
+
+```bash
+mkdir -p logs
+npx pm2 start ecosystem.executor.config.cjs
+npx pm2 save
+npx pm2 status
+```
+
+Для автозапуска после перезагрузки выполните команду, которую выведет:
+
+```bash
+npx pm2 startup
+```
+
+Затем ещё раз:
+
+```bash
+npx pm2 save
+```
+
+## HTTP API
+
+### `GET /curl`
+
+Совместимый endpoint.
+
+| Параметр | Обязательный | Описание |
+| --- | --- | --- |
+| `url` | да | Абсолютный HTTPS URL на `sudrf.ru` или его поддомене. |
+| `ip` | нет | Старый псевдоним executor-а. |
+| `code` | нет | Стабильный идентификатор executor-а. |
+| `clientId` | нет | Новый синоним `code`. |
+| `timeout` | нет | Целое число от 1000 до 30000 мс. |
+| `ref` | нет | Заголовок Referer. |
+| `lng` | нет | Accept-Language. |
+| `accept` | нет | Accept. |
+| `agent` | нет | User-Agent. |
+| `woClean` | нет | `true`/`1`: не удалять `head`, `script`, `style`. |
+| `woReg` | нет | `true`/`1`: не считать старые regexp-маркеры. |
+
+Без селектора выбирается наименее занятый executor. При указанном `ip`, `code`
+или `clientId` запрос ждёт именно соответствующий executor.
+
+### `POST /curl` и `POST /v1/fetch`
+
+Принимают те же поля в JSON. Максимальный размер тела — 64 КиБ.
+
+### `GET /odb`
+
+Сохраняет прежние `domain`, `odb`, `ip`, `code` и `timeout`, безопасно собирает
+URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
+
+### `GET /clients`
+
+Возвращает подключённые executors. Endpoint защищён тем же API-токеном.
+
+### Служебные endpoint-ы
+
+- `GET /healthz` — relay-процесс запущен;
+- `GET /readyz` — есть хотя бы один подключённый executor. Возвращает HTTP 503,
+  когда relay жив, но выполнять запросы пока некому.
+
+## Коды ошибок
+
+| HTTP | `code` | Что делать |
+| ---: | --- | --- |
+| 401 | `UNAUTHORIZED` | Проверить `API_TOKEN` и заголовок. |
+| 422 | `HOST_NOT_ALLOWED` | Разрешены только `sudrf.ru` и поддомены. |
+| 422 | `INVALID_TIMEOUT` | Передать целое `timeout` от 1000 до 30000. |
+| 422 | `INVALID_IP` | Исправить старый `ip` или использовать `code`. |
+| 429 | `RATE_LIMITED`/`QUEUE_FULL` | Повторить с паузой и backoff. |
+| 503 | `EXECUTOR_UNAVAILABLE` | Запустить нужный executor или проверить selector. |
+| 504 | `EXECUTOR_TIMEOUT` | Executor/сайт суда не ответил вовремя. |
+
+Рекомендуемый retry для 429, 503 и 504: 1, 2, 5, 10 и 20 секунд с небольшим
+случайным jitter. Ошибки 401 и 422 повторять без исправления запроса не нужно.
+
+## Ограничения безопасности
+
+- только HTTPS и домены `sudrf.ru`;
+- повторная DNS-проверка на executor-е и блокировка localhost, private LAN,
+  link-local и metadata IP;
+- IP после проверки фиксируется для фактического TCP-соединения, что защищает
+  от DNS rebinding;
+- GET по умолчанию; произвольные методы и заголовки запрещены;
+- максимум 1 МиБ на ответ;
+- 16 одновременных запросов на executor и ограниченная очередь;
+- API и Socket.IO используют независимые токены;
+- `saveUp` и запись произвольных файлов из удалённого запроса удалены;
+- HTML и полные query-параметры судебных дел не пишутся в серверные логи.
+
+## Администратору: production relay через PM2
+
+Сервер разворачивается одним PM2-процессом. Cluster mode без Redis не
+используется, потому что подключения Socket.IO хранятся в памяти процесса.
+
+```bash
+git clone --branch codex/secure-production-relay \
+  https://github.com/bit200/curl_wrap.git /opt/curl-wrap
+cd /opt/curl-wrap
+npm ci --omit=dev
+cp .env.example .env
+chmod 600 .env
+mkdir -p logs
+```
+
+Сгенерировать разные секреты:
+
+```bash
+openssl rand -hex 32
+openssl rand -hex 32
+```
+
+Запустить:
+
+```bash
+npx pm2 start ecosystem.config.cjs
+npx pm2 install pm2-logrotate
+npx pm2 set pm2-logrotate:max_size 20M
+npx pm2 set pm2-logrotate:retain 14
+npx pm2 set pm2-logrotate:compress true
+npx pm2 save
+npx pm2 status
+```
+
+После настройки systemd `pm2 resurrect` восстанавливает сохранённый процесс.
+
+Nginx-конфигурация находится в
+`deploy/nginx/curl-wrap.conf.example`. Порт `8112` должен слушать только
+`127.0.0.1`; снаружи открываются только 80/443. В Nginx обязательно оставить
+WebSocket Upgrade и `proxy_buffering off`.
+
+Обновление:
+
+```bash
+cd /opt/curl-wrap
+git fetch origin codex/secure-production-relay
+git switch codex/secure-production-relay
+git pull --ff-only
+npm ci --omit=dev
+npm test
+npx pm2 reload ecosystem.config.cjs --update-env
+npx pm2 save
+curl -fsS http://127.0.0.1:8112/healthz
+```
+
+Диагностика:
+
+```bash
+npx pm2 status
+npx pm2 logs curl-wrap-relay --lines 100
+curl -fsS http://127.0.0.1:8112/healthz | jq
+curl -sS http://127.0.0.1:8112/readyz | jq
+sudo nginx -t
+```
+
+## Разработка и проверки
+
+```bash
+npm ci
+npm run check
+npm audit --omit=dev
+```
+
+Тесты проверяют прежние GET/POST endpoint-ы и JSON, `ip`-совместимость,
+авторизацию API и Socket.IO, allowlist доменов, корректный числовой timeout и
+блокировку private/metadata адресов.

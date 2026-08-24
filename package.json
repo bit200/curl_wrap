@@ -1,33 +1,39 @@
 {
-  "name": "curl_wrap",
-  "version": "1.0.0",
-  "description": "",
-  "main": "ws_client.js",
+  "name": "curl-wrap",
+  "version": "2.0.0",
+  "description": "Authenticated HTTP-to-Socket.IO relay for controlled web fetching",
+  "main": "socket/proxy_get.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "node socket/proxy_get.js",
+    "start:server": "node socket/proxy_get.js",
+    "start:executor": "node socket/client_socket.js",
+    "start:desktop": "electron .",
+    "test": "node --test",
+    "check": "node --check socket/proxy_get.js && node --check socket/client_socket.js && node --test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bit200/curl_wrap.git"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=22 <27"
+  },
   "bugs": {
     "url": "https://github.com/bit200/curl_wrap/issues"
   },
   "homepage": "https://github.com/bit200/curl_wrap#readme",
   "devDependencies": {
-    "electron": "^42.1.0",
-    "electron-reload": "^2.0.0-alpha.1"
+    "electron": "42.1.0",
+    "electron-reload": "2.0.0-alpha.1"
   },
   "dependencies": {
-    "express": "^5.2.1",
-    "iconv-lite": "^0.7.2",
-    "socket.io": "^4.8.3",
-    "socket.io-client": "^4.8.3",
-    "ws": "^8.20.1"
+    "express": "5.2.1",
+    "iconv-lite": "0.7.3",
+    "ipaddr.js": "2.5.0",
+    "pm2": "7.0.4",
+    "socket.io": "4.8.3",
+    "socket.io-client": "4.8.3"
   }
 }

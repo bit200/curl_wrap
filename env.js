@@ -1,7 +1,11 @@
+'use strict';
+
+const wsDomain = process.env.WS_DOMAIN || 'http://localhost';
+const wsMainPort = Number(process.env.WS_MAIN_PORT || 8112);
+
 module.exports = {
-    // wsServer: 'ws://localhost:8112/',
-    // wsServer: 'ws://193.233.193.42:8112/',
-    wsDomain: 'http://193.233.193.42',
-    // wsDomain: 'http://localhost',
-    wsMainPort: 8112,
-}
+    // Старые поля сохранены для совместимости с существующими скриптами.
+    wsDomain,
+    wsMainPort,
+    proxyUrl: process.env.PROXY_URL || `${wsDomain}:${wsMainPort}`,
+};

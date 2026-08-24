@@ -1,64 +1,83 @@
-const { io } = require("socket.io-client");
-const {wsMainPort, wsDomain} = require("../env");
-const {getUp, saveUp} = require("../libs/saveUp");
-const {parseUrl} = require("../libs/parseUrl");
-const socket = io(`${wsDomain}:${wsMainPort}`);
+'use strict';
 
-console.log("qqqqq aaaaaaaaaaaaa", );
+const crypto = require('crypto');
+const {io} = require('socket.io-client');
+const legacyEnv = require('../env');
+const {buildExecutorConfig} = require('../src/config');
+const {getUp, saveUp} = require('../libs/saveUp');
+const {parseUrl} = require('../libs/parseUrl');
 
-socket.on("connect", async () => {
-    console.log("[WS] Connected to server, starting initialization...");
+async function loadIdentity(config) {
+    let clientId = config.clientId || (await getUp('code.md'))?.trim();
+    if (!clientId) {
+        clientId = `executor-${crypto.randomUUID()}`;
+        await saveUp('code.md', clientId, true);
+    }
+    const legacyIp = config.legacyIp || (await getUp('ip.md'))?.trim() || '';
+    return {clientId, legacyIp};
+}
 
-    // Send initial test message
-    socket.emit("message", { text: "Hello Server!" });
+async function main() {
+    const config = buildExecutorConfig({
+        ...process.env,
+        PROXY_URL: process.env.PROXY_URL || legacyEnv.proxyUrl,
+    });
+    if (!config.token || config.token.length < 32) {
+        throw new Error('EXECUTOR_TOKEN with at least 32 characters is required');
+    }
+    const identity = await loadIdentity(config);
+    const socket = io(config.proxyUrl, {
+        auth: {
+            token: config.token,
+            clientId: identity.clientId,
+            code: identity.clientId,
+            legacyIp: identity.legacyIp,
+            force_ip: identity.legacyIp,
+        },
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 30000,
+        randomizationFactor: 0.5,
+        timeout: 20000,
+        transports: ['websocket', 'polling'],
+    });
 
-    try {
-        // Fetch or generate the unique client code
-        let code = await getUp("code.md");
-        if (!code) {
-            code = new Date().getTime() + '__' + Math.random().toString(36).substring(2, 12).padEnd(10, '0');
-            await saveUp('code.md', code, true);
+    socket.on('connect', () => {
+        console.log(JSON.stringify({event: 'executor_connected', clientId: identity.clientId, proxyUrl: config.proxyUrl}));
+    });
+    socket.on('connect_error', (error) => {
+        console.error(JSON.stringify({event: 'executor_connect_error', message: error.message, code: error.data?.code}));
+    });
+    socket.on('disconnect', (reason) => {
+        console.log(JSON.stringify({event: 'executor_disconnected', reason}));
+    });
+    socket.on('curl', async (data, callback) => {
+        if (typeof callback !== 'function') return;
+        try {
+            const result = await parseUrl(data, config);
+            callback(result);
+        } catch (error) {
+            callback({
+                html: '',
+                ms: 0,
+                status: 'err',
+                headers: {},
+                bytes: 0,
+                error: {code: error.code || 'FETCH_FAILED', message: error.message},
+            });
         }
+    });
 
-        console.log(`[WS] Initializing registration`, { code });
-
-        let force_ip = await getUp('ip.md');
-        if (force_ip) {
-            force_ip = force_ip.replace(/\n/gi, '')
-        }
-        socket.emit("init", {
-            code: code,
-            force_ip
-        });
-
-    } catch (error) {
-        console.error("Failed during init payload generation:", error);
+    function shutdown(signal) {
+        console.log(JSON.stringify({event: 'executor_stopping', signal}));
+        socket.close();
+        setTimeout(() => process.exit(0), 100).unref();
     }
-});
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+}
 
-let hist = []
-getUp('history.json').then(_hist => {
-    try {
-        hist = JSON.parse(_hist) || []
-    } catch(e) {
-                hist = []
-    }
-})
-console.log("qqqqq hist", hist);
-
-socket.on("curl", async (data, callback) => {
-    // console.log("Client received curl event data:", data);
-
-    try {
-        hist.unshift({cd: new Date().getTime(), data})
-        hist = hist.slice(0, 30)
-        saveUp('history.json', JSON.stringify(hist, null, 4), true).then()
-    } catch(e) {
-
-    }
-    // Perform your logic here...
-    const {html, ms, status, headers} = await parseUrl(data)
-    // const resultData = { processed: true, time: Date.now() };
-    // Invoke the callback to send data back to the server's 'await'
-    callback({ms, status, headers, html});
+main().catch((error) => {
+    console.error(JSON.stringify({event: 'executor_startup_failed', message: error.message}));
+    process.exit(1);
 });
