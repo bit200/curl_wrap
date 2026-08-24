@@ -70,3 +70,15 @@ http://193.233.193.42:8112/curl?ip=151.0.51.237&ref=https://ya.ru&lng=ru&accept=
 
 
 
+
+
+## Новый адрес (без портов)
+
+Публичный домен: `https://curl-proxy.212-8-247-141.sslip.io` (nginx слушает 80/443 и проксирует на 127.0.0.1:8112).
+Клиент подключается по домену **без порта** — см. `wsServerUrl` в `env.js`.
+
+https://curl-proxy.212-8-247-141.sslip.io/clients
+https://curl-proxy.212-8-247-141.sslip.io/curl?url=https://itrum.ru&ref=https://ya.ru&lng=ru&accept=text/html&agent=Chrome&timeout=1000
+https://curl-proxy.212-8-247-141.sslip.io/odb?domain=https://bratski--irk.sudrf.ru&odb=19.05.2026
+
+Для локальной разработки без nginx: в `env.js` поставить `useClientPort = true` и `wsDomain = 'http://localhost'`.
