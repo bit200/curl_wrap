@@ -1,11 +1,10 @@
 const { io } = require("socket.io-client");
-const {wsServerUrl} = require("../env");
-const {wsMainPort, wsDomain} = require("../env");
+const {wsServerUrl, executorToken, wsMainPort, wsDomain} = require("../env");
 const {getUp, saveUp} = require("../libs/saveUp");
 const {parseUrl} = require("../libs/parseUrl");
-const socket = io(wsServerUrl);
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
-
 
 const app = express();
 app.set("trust proxy", true);
@@ -14,7 +13,33 @@ app.listen(PORT, () => {
     console.log(`Server listening on 127.0.0.1:${PORT}, public url: ${wsDomain}`);
 });
 
-console.log("qqqqq aaaaaaaaaaaaa", );
+// Токен берём из env, иначе из up/token.md (файл вне гита).
+function readToken() {
+    if (executorToken) return executorToken;
+    try {
+        return fs.readFileSync(path.join(__dirname, "../up/token.md"), "utf8").trim();
+    } catch (e) {
+        return "";
+    }
+}
+
+const token = readToken();
+if (!token) {
+    console.warn(`[WS] Токен executor'а не задан (EXECUTOR_TOKEN или up/token.md) — сервер откажет в подключении`);
+}
+
+console.log(`[WS] Connecting to ${wsServerUrl}`);
+const socket = io(wsServerUrl, {
+    auth: {token},
+    extraHeaders: {"X-API-Key": token},
+});
+
+socket.on("connect_error", (err) => {
+    console.error(`[WS] connect_error: ${err.message}`);
+});
+socket.on("disconnect", (reason) => {
+    console.warn(`[WS] disconnected: ${reason}`);
+});
 
 socket.on("connect", async () => {
     console.log("[WS] Connected to server, starting initialization...");
