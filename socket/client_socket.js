@@ -23,7 +23,7 @@ async function main() {
         PROXY_URL: process.env.PROXY_URL || legacyEnv.proxyUrl,
     });
     if (!config.token || config.token.length < 32) {
-        throw new Error('EXECUTOR_TOKEN with at least 32 characters is required');
+        throw new Error('CURL_WRAP_TOKEN with at least 32 characters is required');
     }
     const identity = await loadIdentity(config);
     const socket = io(config.proxyUrl, {

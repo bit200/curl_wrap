@@ -6,8 +6,7 @@ const {io: connect} = require('socket.io-client');
 const {buildServerConfig} = require('../src/config');
 const {createRelayServer} = require('../src/server');
 
-const API_TOKEN = 'api-token-00000000000000000000000000000000';
-const EXECUTOR_TOKEN = 'executor-token-00000000000000000000000000';
+const CURL_WRAP_TOKEN = 'shared-token-0000000000000000000000000000';
 let baseUrl;
 let relay;
 let socket;
@@ -15,7 +14,7 @@ let lastPayload;
 
 before(async () => {
     const config = buildServerConfig({
-        NODE_ENV: 'production', API_TOKEN, EXECUTOR_TOKEN,
+        NODE_ENV: 'production', CURL_WRAP_TOKEN,
         ALLOWED_HOST_SUFFIXES: 'example.com', QUEUE_WAIT_MS: '250',
         API_RATE_LIMIT_PER_MINUTE: '1000', TRUST_PROXY_HOPS: '0',
     });
@@ -24,7 +23,7 @@ before(async () => {
     const address = relay.httpServer.address();
     baseUrl = `http://127.0.0.1:${address.port}`;
     socket = connect(baseUrl, {
-        auth: {token: EXECUTOR_TOKEN, clientId: 'igor-office', code: 'igor-office', legacyIp: '193.233.193.42'},
+        auth: {token: CURL_WRAP_TOKEN, clientId: 'igor-office', code: 'igor-office', legacyIp: '193.233.193.42'},
         transports: ['websocket'],
     });
     socket.on('curl', (payload, callback) => {
@@ -54,7 +53,7 @@ test('legacy GET /curl, ip selector and response shape remain compatible', async
     url.searchParams.set('ip', '193.233.193.42');
     url.searchParams.set('timeout', '25000');
     url.searchParams.set('url', 'https://court.example.com/case?id=10');
-    const response = await fetch(url, {headers: {'x-api-key': API_TOKEN}});
+    const response = await fetch(url, {headers: {'x-api-key': CURL_WRAP_TOKEN}});
     assert.equal(response.status, 200);
     const body = await response.json();
     assert.equal(body.status, 'ok');
@@ -69,7 +68,7 @@ test('legacy GET /curl, ip selector and response shape remain compatible', async
 test('POST /curl parses JSON and preserves the old path', async () => {
     const response = await fetch(`${baseUrl}/curl`, {
         method: 'POST',
-        headers: {Authorization: `Bearer ${API_TOKEN}`, 'Content-Type': 'application/json'},
+        headers: {Authorization: `Bearer ${CURL_WRAP_TOKEN}`, 'Content-Type': 'application/json'},
         body: JSON.stringify({url: 'https://example.com/page', code: 'igor-office', timeout: 5000}),
     });
     assert.equal(response.status, 200);
@@ -77,11 +76,11 @@ test('POST /curl parses JSON and preserves the old path', async () => {
 });
 
 test('disallowed targets and invalid selectors fail before dispatch', async () => {
-    const blocked = await fetch(`${baseUrl}/curl?url=${encodeURIComponent('https://localhost/private')}`, {headers: {'x-api-key': API_TOKEN}});
+    const blocked = await fetch(`${baseUrl}/curl?url=${encodeURIComponent('https://localhost/private')}`, {headers: {'x-api-key': CURL_WRAP_TOKEN}});
     assert.equal(blocked.status, 422);
     assert.equal((await blocked.json()).code, 'HOST_NOT_ALLOWED');
 
-    const badIp = await fetch(`${baseUrl}/curl?ip=not-an-ip&url=${encodeURIComponent('https://example.com/')}`, {headers: {'x-api-key': API_TOKEN}});
+    const badIp = await fetch(`${baseUrl}/curl?ip=not-an-ip&url=${encodeURIComponent('https://example.com/')}`, {headers: {'x-api-key': CURL_WRAP_TOKEN}});
     assert.equal(badIp.status, 422);
     assert.equal((await badIp.json()).code, 'INVALID_IP');
 });
@@ -99,7 +98,7 @@ test('unauthorized Socket.IO executor is rejected', async () => {
 
 test('authenticated legacy executor can register with init after connecting', async () => {
     const legacy = connect(baseUrl, {
-        auth: {token: EXECUTOR_TOKEN},
+        auth: {token: CURL_WRAP_TOKEN},
         transports: ['websocket'],
         reconnection: false,
     });
@@ -122,7 +121,7 @@ test('authenticated legacy executor can register with init after connecting', as
     const url = new URL('/curl', baseUrl);
     url.searchParams.set('code', 'legacy-igor');
     url.searchParams.set('url', 'https://example.com/legacy');
-    const response = await fetch(url, {headers: {'x-api-key': API_TOKEN}});
+    const response = await fetch(url, {headers: {'x-api-key': CURL_WRAP_TOKEN}});
     const body = await response.json();
     legacy.close();
 

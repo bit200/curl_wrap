@@ -22,8 +22,9 @@ function tokens(value) {
 
 function buildServerConfig(env = process.env) {
     const nodeEnv = env.NODE_ENV || 'development';
-    const apiTokens = tokens(env.API_TOKENS || env.API_TOKEN);
-    const executorTokens = tokens(env.EXECUTOR_TOKENS || env.EXECUTOR_TOKEN);
+    const sharedTokens = tokens(env.CURL_WRAP_TOKENS || env.CURL_WRAP_TOKEN);
+    const apiTokens = sharedTokens.length > 0 ? sharedTokens : tokens(env.API_TOKENS || env.API_TOKEN);
+    const executorTokens = sharedTokens.length > 0 ? sharedTokens : tokens(env.EXECUTOR_TOKENS || env.EXECUTOR_TOKEN);
     const config = {
         nodeEnv,
         host: env.HOST || '127.0.0.1',
@@ -69,7 +70,7 @@ function buildExecutorConfig(env = process.env) {
     const maxTimeoutMs = integer(env.MAX_TIMEOUT_MS, 30000, {min: 1000, max: 120000, name: 'MAX_TIMEOUT_MS'});
     return {
         proxyUrl: env.PROXY_URL || `${env.WS_DOMAIN || 'http://localhost'}:${integer(env.WS_MAIN_PORT, 8112, {min: 1, max: 65535, name: 'WS_MAIN_PORT'})}`,
-        token: env.EXECUTOR_TOKEN || '',
+        token: env.CURL_WRAP_TOKEN || env.EXECUTOR_TOKEN || env.TOKEN || '',
         clientId: env.CLIENT_ID || '',
         legacyIp: env.EXECUTOR_LEGACY_IP || '',
         allowedHostSuffixes: csv(env.ALLOWED_HOST_SUFFIXES, ['sudrf.ru']).map((item) => item.toLowerCase()),

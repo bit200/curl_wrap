@@ -10,8 +10,8 @@ Production endpoint:
 https://curl-proxy.212-8-247-141.sslip.io
 ```
 
-Секреты не хранятся в Git. `API_TOKEN` и `EXECUTOR_TOKEN` администратор передаёт
-отдельно.
+Секрет не хранится в Git. Администратор отдельно передаёт один
+`CURL_WRAP_TOKEN`: он используется и в HTTP API, и при подключении executor-а.
 
 ## Игорю: что изменилось
 
@@ -26,22 +26,21 @@ https://curl-proxy.212-8-247-141.sslip.io
 - Socket.IO и событие `curl`;
 - один общий порт для HTTP и Socket.IO.
 
-Добавлены только два обязательных секрета:
+Добавлен один обязательный секрет:
 
-1. HTTP-клиент передаёт `X-API-Key: <API_TOKEN>` или
-   `Authorization: Bearer <API_TOKEN>`.
-2. Socket.IO executor передаёт `EXECUTOR_TOKEN` при подключении.
+- HTTP-клиент передаёт `X-API-Key: <CURL_WRAP_TOKEN>` или
+  `Authorization: Bearer <CURL_WRAP_TOKEN>`;
+- Socket.IO executor передаёт тот же `CURL_WRAP_TOKEN` при подключении.
 
 Токен нельзя добавлять в query string: URL попадает в access-логи и историю
 браузера.
 
 Существующий executor Игоря, который сначала подключается с `auth: {token}`, а
 затем отправляет старое событие `init` с полями `code` и `force_ip`, также
-поддерживается. В его команде переменная `TOKEN` должна содержать именно
-`EXECUTOR_TOKEN`, а не токен HTTP API:
+поддерживается. Для него оставлен совместимый псевдоним переменной `TOKEN`:
 
 ```bash
-TOKEN="$EXECUTOR_TOKEN" node socket/client_socket.js
+TOKEN="$CURL_WRAP_TOKEN" node socket/client_socket.js
 ```
 
 До успешного `init` relay считает такое соединение незарегистрированным и не
@@ -51,10 +50,10 @@ TOKEN="$EXECUTOR_TOKEN" node socket/client_socket.js
 
 ```bash
 export CURL_WRAP_URL=https://curl-proxy.212-8-247-141.sslip.io
-export CURL_WRAP_API_TOKEN='получить-у-администратора'
+export CURL_WRAP_TOKEN='получить-у-администратора'
 
 curl -fsS "$CURL_WRAP_URL/clients" \
-  -H "X-API-Key: $CURL_WRAP_API_TOKEN" | jq
+  -H "X-API-Key: $CURL_WRAP_TOKEN" | jq
 ```
 
 Если executor подключён, `items` содержит его `ip`, `code`, `clientId` и число
@@ -64,7 +63,7 @@ curl -fsS "$CURL_WRAP_URL/clients" \
 
 ```bash
 curl -fsS -G "$CURL_WRAP_URL/curl" \
-  -H "X-API-Key: $CURL_WRAP_API_TOKEN" \
+  -H "X-API-Key: $CURL_WRAP_TOKEN" \
   --data-urlencode 'ip=193.233.193.42' \
   --data-urlencode 'timeout=25000' \
   --data-urlencode 'url=https://krasnodar-prikubansky--krd.sudrf.ru/modules.php?name=sud_delo&srv_num=1&H_date=19.05.2026' \
@@ -75,7 +74,7 @@ curl -fsS -G "$CURL_WRAP_URL/curl" \
 
 ```bash
 curl -fsS -G "$CURL_WRAP_URL/odb" \
-  -H "X-API-Key: $CURL_WRAP_API_TOKEN" \
+  -H "X-API-Key: $CURL_WRAP_TOKEN" \
   --data-urlencode 'ip=193.233.193.42' \
   --data-urlencode 'odb=19.05.2026' \
   --data-urlencode 'domain=https://tulunsky--irk.sudrf.ru' \
@@ -86,7 +85,7 @@ curl -fsS -G "$CURL_WRAP_URL/odb" \
 
 ```bash
 curl -fsS "$CURL_WRAP_URL/curl" \
-  -H "Authorization: Bearer $CURL_WRAP_API_TOKEN" \
+  -H "Authorization: Bearer $CURL_WRAP_TOKEN" \
   -H 'Content-Type: application/json' \
   --data '{
     "ip": "193.233.193.42",
@@ -108,7 +107,7 @@ const response = await fetch(`${baseUrl}/curl?${params}`);
 ```js
 const response = await fetch(`${baseUrl}/curl?${params}`, {
     headers: {
-        'X-API-Key': process.env.CURL_WRAP_API_TOKEN,
+        'X-API-Key': process.env.CURL_WRAP_TOKEN,
     },
 });
 ```
@@ -140,7 +139,7 @@ chmod 600 .env.executor
 
 ```env
 PROXY_URL=https://curl-proxy.212-8-247-141.sslip.io
-EXECUTOR_TOKEN=получить-у-администратора
+CURL_WRAP_TOKEN=получить-у-администратора
 CLIENT_ID=igor-office
 EXECUTOR_LEGACY_IP=193.233.193.42
 ```
@@ -228,7 +227,7 @@ URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
 
 | HTTP | `code` | Что делать |
 | ---: | --- | --- |
-| 401 | `UNAUTHORIZED` | Проверить `API_TOKEN` и заголовок. |
+| 401 | `UNAUTHORIZED` | Проверить `CURL_WRAP_TOKEN` и заголовок. |
 | 422 | `HOST_NOT_ALLOWED` | Разрешены только `sudrf.ru` и поддомены. |
 | 422 | `INVALID_TIMEOUT` | Передать целое `timeout` от 1000 до 30000. |
 | 422 | `INVALID_IP` | Исправить старый `ip` или использовать `code`. |
