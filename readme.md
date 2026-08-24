@@ -271,6 +271,10 @@ Production использует PM2 в foreground-режиме под systemd: P
 файлы находятся в `deploy/systemd/curl-wrap-pm2.service.example` и
 `deploy/logrotate/curl-wrap`. После установки:
 
+`ecosystem.production.config.cjs` запускает relay и локальный fallback-executor.
+Для него требуется защищённый `.env.executor`; отдельные внешние executors
+могут подключаться одновременно.
+
 ```bash
 sudo systemctl enable --now curl-wrap-pm2.service
 sudo systemctl status curl-wrap-pm2.service

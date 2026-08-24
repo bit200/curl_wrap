@@ -15,8 +15,8 @@ Restart=always
 RestartSec=5
 KillMode=mixed
 TimeoutStopSec=15
-ExecStart=/opt/curl-wrap-pm2/bin/pm2 start /opt/curl-wrap/current/ecosystem.config.cjs --no-daemon
-ExecReload=/opt/curl-wrap-pm2/bin/pm2 reload /opt/curl-wrap/current/ecosystem.config.cjs --update-env
+ExecStart=/opt/curl-wrap-pm2/bin/pm2 start /opt/curl-wrap/current/ecosystem.production.config.cjs --no-daemon
+ExecReload=/opt/curl-wrap-pm2/bin/pm2 reload /opt/curl-wrap/current/ecosystem.production.config.cjs --update-env
 
 [Install]
 WantedBy=multi-user.target
