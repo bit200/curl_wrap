@@ -30,10 +30,8 @@ function StatusLogger() {
             });
         }
 
-        // Initialize direct frontend WebSocket client pipe.
-        // Адрес берём из env через preload — домен без порта.
-        const httpUrl = (window.electronAPI && window.electronAPI.wsServerUrl) || 'http://localhost';
-        const socket = new WebSocket(httpUrl.replace(/^http/, 'ws'));
+        // Initialize direct frontend WebSocket client pipe
+        const socket = new WebSocket('ws://localhost:8080');
         socket.onopen = () => console.log('[React WS] Connected');
         socket.onmessage = (event) => console.log('[React WS] Data:', event.data);
 

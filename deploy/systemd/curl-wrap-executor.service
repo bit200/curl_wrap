@@ -1,0 +1,26 @@
+[Unit]
+Description=curl-wrap remote executor
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=curl-wrap
+Group=curl-wrap
+WorkingDirectory=/opt/curl-wrap-executor/current
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/curl-wrap-executor.env
+ExecStart=/opt/node-v24.19.0-linux-x64/bin/node socket/client_socket.js
+Restart=always
+RestartSec=5
+TimeoutStopSec=15
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/curl-wrap-executor
+
+[Install]
+WantedBy=multi-user.target
