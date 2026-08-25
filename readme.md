@@ -154,6 +154,13 @@ EXECUTOR_LEGACY_IP=193.233.193.42
 node --env-file=.env.executor socket/client_socket.js
 ```
 
+Для обратной совместимости старый запуск только с токеном тоже подключается к
+рабочему публичному relay:
+
+```bash
+TOKEN=получить-у-администратора node socket/client_socket.js
+```
+
 Успешное подключение выглядит так:
 
 ```json
