@@ -125,9 +125,9 @@ Executor должен работать на машине, с IP которой �
 
 ```bash
 mkdir -p ~/work/curl_wrap-secure
-curl -fsSLo /tmp/curl-wrap-client-v2.0.2.tar.gz \
-  https://curl-proxy.212-8-247-141.sslip.io/download/curl-wrap-client-v2.0.2.tar.gz
-tar -xzf /tmp/curl-wrap-client-v2.0.2.tar.gz \
+curl -fsSLo /tmp/curl-wrap-client-v2.0.3.tar.gz \
+  https://curl-proxy.212-8-247-141.sslip.io/download/curl-wrap-client-v2.0.3.tar.gz
+tar -xzf /tmp/curl-wrap-client-v2.0.3.tar.gz \
   --strip-components=1 -C ~/work/curl_wrap-secure
 cd ~/work/curl_wrap-secure
 npm ci --omit=dev
@@ -268,7 +268,7 @@ URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
 
 ```bash
 mkdir -p /opt/curl-wrap
-tar -xzf curl-wrap-client-v2.0.2.tar.gz \
+tar -xzf curl-wrap-client-v2.0.3.tar.gz \
   --strip-components=1 -C /opt/curl-wrap
 cd /opt/curl-wrap
 npm ci --omit=dev
