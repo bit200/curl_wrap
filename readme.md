@@ -125,9 +125,9 @@ Executor должен работать на машине, с IP которой �
 
 ```bash
 mkdir -p ~/work/curl_wrap-secure
-curl -fsSLo /tmp/curl-wrap-client-v2.0.1.tar.gz \
-  https://curl-proxy.212-8-247-141.sslip.io/download/curl-wrap-client-v2.0.1.tar.gz
-tar -xzf /tmp/curl-wrap-client-v2.0.1.tar.gz \
+curl -fsSLo /tmp/curl-wrap-client-v2.0.2.tar.gz \
+  https://curl-proxy.212-8-247-141.sslip.io/download/curl-wrap-client-v2.0.2.tar.gz
+tar -xzf /tmp/curl-wrap-client-v2.0.2.tar.gz \
   --strip-components=1 -C ~/work/curl_wrap-secure
 cd ~/work/curl_wrap-secure
 npm ci --omit=dev
@@ -231,7 +231,7 @@ URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
 | 422 | `HOST_NOT_ALLOWED` | Разрешены только `sudrf.ru` и поддомены. |
 | 422 | `INVALID_TIMEOUT` | Передать целое `timeout` от 1000 до 30000. |
 | 422 | `INVALID_IP` | Исправить старый `ip` или использовать `code`. |
-| 429 | `RATE_LIMITED`/`QUEUE_FULL` | Повторить с паузой и backoff. |
+| 429 | `QUEUE_FULL` | Очередь relay заполнена; повторить с паузой и backoff. |
 | 503 | `EXECUTOR_UNAVAILABLE` | Запустить нужный executor или проверить selector. |
 | 504 | `EXECUTOR_TIMEOUT` | Executor/сайт суда не ответил вовремя. |
 
@@ -248,6 +248,8 @@ URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
 - GET по умолчанию; произвольные методы и заголовки запрещены;
 - максимум 1 МиБ на ответ;
 - 16 одновременных запросов на executor и ограниченная очередь;
+- фиксированного минутного лимита API нет: пропускную способность ограничивают
+  число executor-ов, параллельность на каждый executor и размер очереди;
 - API и Socket.IO используют независимые токены;
 - `saveUp` и запись произвольных файлов из удалённого запроса удалены;
 - HTML и полные query-параметры судебных дел не пишутся в серверные логи.
@@ -259,7 +261,7 @@ URL `/modules.php?name=sud_delo&srv_num=1&H_date=...`.
 
 ```bash
 mkdir -p /opt/curl-wrap
-tar -xzf curl-wrap-client-v2.0.1.tar.gz \
+tar -xzf curl-wrap-client-v2.0.2.tar.gz \
   --strip-components=1 -C /opt/curl-wrap
 cd /opt/curl-wrap
 npm ci --omit=dev

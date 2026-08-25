@@ -7,7 +7,7 @@ const {Server} = require('socket.io');
 const {RelayBroker} = require('./broker');
 const {ServiceError} = require('./errors');
 const {normalizeFetchRequest, odbRequest} = require('./request');
-const {createRateLimiter, matchesAnyToken, requireApiToken, securityHeaders} = require('./security');
+const {matchesAnyToken, requireApiToken, securityHeaders} = require('./security');
 
 const CLIENT_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,63}$/;
 
@@ -160,15 +160,14 @@ function createRelayServer(config, logger = console) {
         socket.on('disconnect', () => broker.unregister(socket));
     });
 
-    app.get('/healthz', (req, res) => res.json({ok: true, service: 'curl-wrap', version: '2.0.1'}));
+    app.get('/healthz', (req, res) => res.json({ok: true, service: 'curl-wrap', version: '2.0.2'}));
     app.get('/readyz', (req, res) => {
         const executors = broker.readyCount();
         res.status(executors > 0 ? 200 : 503).json({ready: executors > 0, executors, queued: broker.queue.length});
     });
 
     const apiAuth = requireApiToken(config);
-    const rateLimit = createRateLimiter(config.apiRateLimitPerMinute);
-    app.use(['/curl', '/odb', '/clients', '/v1'], apiAuth, rateLimit);
+    app.use(['/curl', '/odb', '/clients', '/v1'], apiAuth);
     app.get(['/clients', '/v1/clients'], (req, res) => res.json({items: broker.list()}));
 
     async function handle(payload, res) {

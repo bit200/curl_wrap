@@ -45,7 +45,6 @@ function buildServerConfig(env = process.env) {
         maxResponseBytes: integer(env.MAX_RESPONSE_BYTES, 1048576, {min: 1024, max: 10485760, name: 'MAX_RESPONSE_BYTES'}),
         maxRequestBodyBytes: integer(env.MAX_REQUEST_BODY_BYTES, 65536, {min: 1024, max: 1048576, name: 'MAX_REQUEST_BODY_BYTES'}),
         socketMaxPayloadBytes: integer(env.SOCKET_MAX_PAYLOAD_BYTES, 1572864, {min: 65536, max: 16777216, name: 'SOCKET_MAX_PAYLOAD_BYTES'}),
-        apiRateLimitPerMinute: integer(env.API_RATE_LIMIT_PER_MINUTE, 600, {min: 1, max: 1000000, name: 'API_RATE_LIMIT_PER_MINUTE'}),
         defaultEncoding: env.DEFAULT_ENCODING || 'win1251',
         trustProxy: integer(env.TRUST_PROXY_HOPS, 1, {min: 0, max: 10, name: 'TRUST_PROXY_HOPS'}),
     };

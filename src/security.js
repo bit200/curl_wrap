@@ -30,7 +30,6 @@ function requireApiToken(config) {
         if (!matchesAnyToken(token, config.apiTokens)) {
             return res.status(401).json({status: 'error', code: 'UNAUTHORIZED', message: 'Valid Bearer token or X-API-Key is required'});
         }
-        req.authKey = crypto.createHash('sha256').update(token).digest('hex').slice(0, 16);
         next();
     };
 }
@@ -81,28 +80,4 @@ function securityHeaders(req, res, next) {
     next();
 }
 
-function createRateLimiter(limitPerMinute) {
-    const buckets = new Map();
-    return (req, res, next) => {
-        const key = req.authKey || req.ip;
-        const now = Date.now();
-        let bucket = buckets.get(key);
-        if (!bucket || now - bucket.startedAt >= 60000) {
-            bucket = {startedAt: now, count: 0};
-            buckets.set(key, bucket);
-        }
-        bucket.count += 1;
-        if (bucket.count > limitPerMinute) {
-            res.set('Retry-After', String(Math.max(1, Math.ceil((60000 - (now - bucket.startedAt)) / 1000))));
-            return res.status(429).json({status: 'error', code: 'RATE_LIMITED', message: 'API rate limit exceeded'});
-        }
-        if (buckets.size > 10000) {
-            for (const [bucketKey, value] of buckets) {
-                if (now - value.startedAt >= 120000) buckets.delete(bucketKey);
-            }
-        }
-        next();
-    };
-}
-
-module.exports = {createRateLimiter, isAllowedHostname, isPublicAddress, matchesAnyToken, requireApiToken, securityHeaders, validateTargetSyntax};
+module.exports = {isAllowedHostname, isPublicAddress, matchesAnyToken, requireApiToken, securityHeaders, validateTargetSyntax};

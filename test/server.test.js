@@ -16,7 +16,7 @@ before(async () => {
     const config = buildServerConfig({
         NODE_ENV: 'production', CURL_WRAP_TOKEN,
         ALLOWED_HOST_SUFFIXES: 'example.com', QUEUE_WAIT_MS: '250',
-        API_RATE_LIMIT_PER_MINUTE: '1000', TRUST_PROXY_HOPS: '0',
+        TRUST_PROXY_HOPS: '0',
     });
     relay = createRelayServer(config, {info() {}, error() {}});
     await new Promise((resolve) => relay.httpServer.listen(0, '127.0.0.1', resolve));
@@ -46,6 +46,15 @@ test('health endpoint is public but API requires a token', async () => {
     const response = await fetch(`${baseUrl}/clients`);
     assert.equal(response.status, 401);
     assert.equal((await response.json()).code, 'UNAUTHORIZED');
+});
+
+test('authenticated API has no fixed per-minute request limit', async () => {
+    const statuses = await Promise.all(Array.from({length: 625}, async () => {
+        const response = await fetch(`${baseUrl}/clients`, {headers: {'x-api-key': CURL_WRAP_TOKEN}});
+        await response.arrayBuffer();
+        return response.status;
+    }));
+    assert.equal(statuses.every((status) => status === 200), true);
 });
 
 test('legacy GET /curl, ip selector and response shape remain compatible', async () => {
